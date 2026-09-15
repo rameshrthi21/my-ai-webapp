@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Architecture Validation &amp; Design Review</title>
+<meta name="description" content="AI-assisted architecture validation: submit a design, get it checked against your enterprise patterns and Well-Architected pillars, with violations, exceptions, and gaps cited to the actual rule." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<div id="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">🏛️</span>
+      <div>
+        <h1>Architecture Validation &amp; Design Review</h1>
+        <p class="tagline">Submit a design. Get it checked against your enterprise patterns and the Well-Architected pillars — automatically, with every finding cited to the rule that raised it.</p>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab active" data-tab="review" role="tab" aria-selected="true">Review</button>
+    <button class="tab" data-tab="rules" role="tab" aria-selected="false">Rule Library</button>
+    <button class="tab" data-tab="history" role="tab" aria-selected="false">History</button>
+    <button class="tab" data-tab="settings" role="tab" aria-selected="false">Settings</button>
+  </nav>
+
+  <main>
+
+    <!-- REVIEW TAB -->
+    <section id="tab-review" class="tab-panel active" role="tabpanel">
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Submit architecture for review</h2>
+            <button id="btn-sample" class="btn-ghost" type="button">Load flawed sample</button>
+          </div>
+
+          <label class="field-label" for="workload-type">Workload type</label>
+          <select id="workload-type">
+            <option value="">General / not specified</option>
+            <option value="web">Web application</option>
+            <option value="api">Microservices / API platform</option>
+            <option value="data">Data platform / analytics</option>
+            <option value="batch">Batch / ETL</option>
+            <option value="ml">AI / ML workload</option>
+          </select>
+
+          <label class="field-label" for="design-input">Architecture description</label>
+          <textarea id="design-input" rows="16" placeholder="Describe the proposed architecture: components, data flow, identity model, network topology, regions, resiliency approach, deployment pipeline, expected scale, data classification, compliance scope, etc. The more detail, the more accurate the review."></textarea>
+
+          <div class="actions-row">
+            <button id="btn-review" class="btn-primary" type="button">Run review</button>
+            <button id="btn-clear" class="btn-ghost" type="button">Clear</button>
+            <span id="review-status" class="status-text" aria-live="polite"></span>
+          </div>
+        </div>
+
+        <div class="panel" id="results-panel">
+          <div class="panel-head">
+            <h2>Results</h2>
+            <button id="btn-export" class="btn-ghost" type="button" hidden>Export report (.md)</button>
+          </div>
+          <div id="results-empty" class="empty-state">
+            Run a review to see violations, deviations needing exception, and Well-Architected gaps here — each citing the exact rule it triggered.
+          </div>
+          <div id="results-content" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RULE LIBRARY TAB -->
+    <section id="tab-rules" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Rule library</h2>
+          <div class="btn-row">
+            <button id="btn-add-rule" class="btn-primary" type="button">Add rule</button>
+            <button id="btn-import-rules" class="btn-ghost" type="button">Import JSON</button>
+            <button id="btn-export-rules" class="btn-ghost" type="button">Export JSON</button>
+            <button id="btn-reset-rules" class="btn-danger-ghost" type="button">Reset to defaults</button>
+            <input type="file" id="file-import-rules" accept="application/json" hidden />
+          </div>
+        </div>
+        <p class="panel-desc">This is your enterprise pattern set. Every rule here is cited by ID when it fires during a review. Edit, remove, or add rules so the reviewer reflects your organization's actual standards — not generic cloud guidance.</p>
+        <div id="rules-list"></div>
+      </div>
+    </section>
+
+    <!-- HISTORY TAB -->
+    <section id="tab-history" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Review history</h2>
+          <button id="btn-clear-history" class="btn-danger-ghost" type="button">Clear history</button>
+        </div>
+        <p class="panel-desc">Saved locally in your browser. Nothing is sent anywhere unless you explicitly enable the AI narrative in Settings.</p>
+        <div id="history-list" class="empty-state">No reviews yet.</div>
+      </div>
+    </section>
+
+    <!-- SETTINGS TAB -->
+    <section id="tab-settings" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <h2>AI narrative enhancement (optional)</h2>
+        <p class="panel-desc">
+          The rule engine above is fully deterministic and works with no API key and no network calls.
+          Optionally, you can add an Anthropic API key to get a short narrative synthesis of each review, written by Claude,
+          summarizing the findings in plain language for a review board.
+        </p>
+        <div class="callout callout-warn">
+          <strong>Security note:</strong> if you enable this, your API key is stored only in this browser's local storage and is sent
+          directly from your browser to Anthropic's API — never to any third party or to this site's host. Anyone with access to this
+          browser profile can read it. Do not enable this on a shared or public machine, and prefer a key scoped with a spend limit.
+        </div>
+        <label class="field-label" for="ai-toggle">
+          <input type="checkbox" id="ai-toggle" /> Enable AI narrative synthesis
+        </label>
+        <label class="field-label" for="api-key-input">Anthropic API key</label>
+        <input type="password" id="api-key-input" placeholder="sk-ant-..." autocomplete="off" />
+        <div class="actions-row">
+          <button id="btn-save-key" class="btn-primary" type="button">Save key</button>
+          <button id="btn-clear-key" class="btn-ghost" type="button">Clear saved key</button>
+          <span id="key-status" class="status-text" aria-live="polite"></span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>About this tool</h2>
+        <p class="panel-desc">
+          This is the automated extension of a manual architecture review board: instead of a human checking a proposed
+          design against the roadmap and standards by hand, this reviewer reads a submitted architecture and flags
+          <strong>violations</strong> (hard rule breaks), <strong>deviations needing an exception</strong> (soft/recommended
+          patterns not followed, with no documented waiver), and <strong>Well-Architected gaps</strong> (required
+          considerations not addressed at all) — citing the exact rule that fired. The rule pack in the Rule Library tab
+          is meant to be replaced with your own enterprise patterns.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <span>Runs entirely client-side · rule pack is user-editable · no data leaves your browser unless AI narrative is enabled</span>
+  </footer>
+
+</div>
+
+<template id="rule-item-template">
+  <article class="rule-item">
+    <header class="rule-item-head">
+      <span class="rule-id"></span>
+      <span class="pill severity-pill"></span>
+      <span class="pill pillar-pill"></span>
+      <button class="btn-icon rule-edit" type="button" title="Edit">✏️</button>
+      <button class="btn-icon rule-delete" type="button" title="Delete">🗑️</button>
+    </header>
+    <h3 class="rule-title"></h3>
+    <p class="rule-requirement"></p>
+  </article>
+</template>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+{
+  "version": "1.0.0",
+  "name": "Default Enterprise + Well-Architected Rule Pack",
+  "pillars": [
+    { "id": "security", "name": "Security" },
+    { "id": "reliability", "name": "Reliability" },
+    { "id": "cost", "name": "Cost Optimization" },
+    { "id": "operations", "name": "Operational Excellence" },
+    { "id": "performance", "name": "Performance Efficiency" },
+    { "id": "governance", "name": "Enterprise Governance" }
+  ],
+  "rules": [
+    {
+      "id": "SEC-01",
+      "pillar": "security",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Hardcoded credentials or secrets",
+      "requirement": "Secrets, API keys, connection strings, and certificates must be stored in a managed secrets vault (e.g. Key Vault, Secrets Manager) and never embedded in code, config files, or IaC templates.",
+      "triggers": ["hardcoded credential", "hardcoded password", "hardcoded secret", "hardcoded api key", "password is hardcoded", "credential is hardcoded", "secret is hardcoded", "key is hardcoded", "password in code", "secret in code", "connection string in code", "plaintext password", "plain text password", "checked into the repo"],
+      "recommendation": "Move all secrets to a managed vault and inject them at runtime via managed identity or a secrets provider."
+    },
+    {
+      "id": "SEC-02",
+      "pillar": "security",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Publicly accessible data store",
+      "requirement": "Storage accounts, databases, and object stores holding non-public data must not be configured for public/anonymous access.",
+      "triggers": ["public storage account", "public s3 bucket", "public blob container", "anonymous access enabled", "open to the internet", "database publicly accessible", "public database endpoint", "0.0.0.0/0"],
+      "recommendation": "Restrict access with private endpoints/VNet integration and explicit allow-lists; disable anonymous/public access at the resource level."
+    },
+    {
+      "id": "SEC-03",
+      "pillar": "security",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Encryption disabled or unspecified for data at rest",
+      "requirement": "All data stores handling business or customer data must have encryption at rest enabled using platform-managed or customer-managed keys.",
+      "triggers": ["encryption disabled", "no encryption at rest", "encryption not configured", "encryption at rest is not configured", "unencrypted storage", "unencrypted database"],
+      "recommendation": "Enable encryption at rest; use customer-managed keys (CMK) for regulated data classes."
+    },
+    {
+      "id": "SEC-04",
+      "pillar": "security",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Traffic not encrypted in transit",
+      "requirement": "All service-to-service and client-to-service traffic must use TLS 1.2+. Plaintext HTTP or unencrypted protocols are not permitted for production workloads.",
+      "triggers": ["http only", "plaintext traffic", "tls disabled", "unencrypted traffic", "no tls", "ftp used", "telnet used"],
+      "recommendation": "Enforce TLS 1.2+ everywhere; redirect HTTP to HTTPS and disable legacy protocols."
+    },
+    {
+      "id": "SEC-05",
+      "pillar": "security",
+      "severity": "exception",
+      "type": "conditional",
+      "title": "Administrative access without MFA",
+      "requirement": "Break-glass and administrative access paths must require multi-factor authentication unless a documented, approved exception exists.",
+      "triggers": ["mfa not required", "mfa disabled", "no multi-factor", "single factor admin", "admin without mfa"],
+      "exceptionKeywords": ["mfa exception approved", "waiver approved", "approved deviation", "compensating control approved"],
+      "recommendation": "Require MFA for all administrative and break-glass paths, or attach an approved compensating-control exception."
+    },
+    {
+      "id": "SEC-06",
+      "pillar": "security",
+      "severity": "gap",
+      "type": "require",
+      "title": "Identity and access model not described",
+      "requirement": "Every submission must describe the identity provider, authentication method, and authorization/role model used by the workload.",
+      "expect": ["authentication", "authorization", "identity provider", "iam", "rbac", "oauth", "oidc", "saml", "role-based access", "managed identity"],
+      "recommendation": "Document the identity provider, auth flow, and role/permission model (e.g. RBAC via Entra ID / IAM)."
+    },
+    {
+      "id": "SEC-07",
+      "pillar": "security",
+      "severity": "gap",
+      "type": "require",
+      "title": "Network segmentation not described",
+      "requirement": "Architectures must describe network boundaries (VPC/VNet, subnets, security groups/NSGs, firewall) separating tiers and trust zones.",
+      "expect": ["vnet", "vpc", "subnet", "network security group", "security group", "firewall", "private endpoint", "network segmentation", "peering"],
+      "recommendation": "Add a network diagram or description showing segmentation between public, application, and data tiers."
+    },
+    {
+      "id": "SEC-08",
+      "pillar": "security",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Overly permissive access control",
+      "requirement": "Wildcard or account-wide administrative grants (e.g. '*' permissions, owner-for-everyone) are not permitted; access must follow least privilege.",
+      "triggers": ["wildcard permission", "full admin access for all", "owner role for everyone", "* permission", "grant all permissions", "everyone has admin"],
+      "recommendation": "Scope permissions to least privilege with role-specific grants instead of broad/wildcard access."
+    },
+    {
+      "id": "REL-01",
+      "pillar": "reliability",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Single point of failure in production topology",
+      "requirement": "Production workloads must not depend on a single instance, single availability zone, or single region without redundancy.",
+      "triggers": ["single instance", "single point of failure", "single az", "single availability zone", "no redundancy", "no failover", "single node cluster"],
+      "recommendation": "Deploy across multiple availability zones (and regions for tier-1 workloads) with automated failover."
+    },
+    {
+      "id": "REL-02",
+      "pillar": "reliability",
+      "severity": "gap",
+      "type": "require",
+      "title": "Disaster recovery objectives not defined",
+      "requirement": "Every production architecture must state a Recovery Time Objective (RTO) and Recovery Point Objective (RPO).",
+      "expect": ["rto", "rpo", "recovery time objective", "recovery point objective", "disaster recovery plan"],
+      "recommendation": "Define explicit RTO/RPO targets and the backup/replication strategy that meets them."
+    },
+    {
+      "id": "REL-03",
+      "pillar": "reliability",
+      "severity": "gap",
+      "type": "require",
+      "title": "No backup strategy described",
+      "requirement": "Stateful components must document a backup strategy including frequency and retention.",
+      "expect": ["backup", "snapshot", "retention policy", "point-in-time restore"],
+      "recommendation": "Document backup frequency, retention, and restore testing cadence for all stateful stores."
+    },
+    {
+      "id": "REL-04",
+      "pillar": "reliability",
+      "severity": "exception",
+      "type": "conditional",
+      "title": "No health checks or auto-healing configured",
+      "requirement": "Compute resources behind a load balancer or orchestrator should use health probes and auto-restart/auto-scale policies unless an exception is approved.",
+      "triggers": ["no health check", "no health probe", "health checks disabled", "no auto-restart", "no self-healing"],
+      "exceptionKeywords": ["exception approved", "waiver approved", "approved deviation"],
+      "recommendation": "Add liveness/readiness probes and auto-healing/auto-scaling policies, or attach an approved exception."
+    },
+    {
+      "id": "REL-05",
+      "pillar": "reliability",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Stateful data held only in ephemeral/local storage",
+      "requirement": "Business-critical state must not be persisted solely on local/ephemeral disk that does not survive instance replacement.",
+      "triggers": ["local disk only", "ephemeral storage only", "in-memory only no persistence", "state stored locally only"],
+      "recommendation": "Persist critical state in a managed, replicated data store rather than local/ephemeral disk."
+    },
+    {
+      "id": "COST-01",
+      "pillar": "cost",
+      "severity": "gap",
+      "type": "require",
+      "title": "Cost/budget controls not mentioned",
+      "requirement": "Submissions must describe cost controls: budgets, alerts, tagging for chargeback, or reserved/committed capacity where applicable.",
+      "expect": ["budget", "cost alert", "cost management", "tagging for cost", "reserved instance", "savings plan", "chargeback", "showback"],
+      "recommendation": "Add budget alerts and cost-allocation tags; evaluate reserved/committed pricing for steady-state workloads."
+    },
+    {
+      "id": "COST-02",
+      "pillar": "cost",
+      "severity": "exception",
+      "type": "conditional",
+      "title": "Always-on premium/oversized resources for variable load",
+      "requirement": "Variable-load workloads should use autoscaling or serverless/consumption pricing rather than fixed always-on premium capacity, unless justified.",
+      "triggers": ["always on premium tier", "fixed capacity oversized", "no autoscaling configured", "manually scaled only"],
+      "exceptionKeywords": ["cost exception approved", "capacity justified", "approved deviation"],
+      "recommendation": "Right-size and enable autoscaling, or attach a documented capacity/cost justification."
+    },
+    {
+      "id": "COST-03",
+      "pillar": "cost",
+      "severity": "gap",
+      "type": "require",
+      "title": "Environment lifecycle / decommission plan missing",
+      "requirement": "Non-production environments must describe an auto-shutdown or decommission policy to avoid idle spend.",
+      "expect": ["auto-shutdown", "decommission", "environment ttl", "dev environment schedule", "sandbox expiry"],
+      "recommendation": "Add scheduled shutdown/TTL policies for dev/test environments."
+    },
+    {
+      "id": "OPS-01",
+      "pillar": "operations",
+      "severity": "gap",
+      "type": "require",
+      "title": "Observability (logging, metrics, tracing) not described",
+      "requirement": "Every production workload must describe centralized logging, metrics, and alerting; distributed systems should also describe tracing.",
+      "expect": ["logging", "metrics", "monitoring", "observability", "alerting", "distributed tracing", "dashboard"],
+      "recommendation": "Add centralized logging/metrics/alerting (and tracing for distributed systems) with a named tool/platform."
+    },
+    {
+      "id": "OPS-02",
+      "pillar": "operations",
+      "severity": "gap",
+      "type": "require",
+      "title": "Deployment / CI-CD strategy not described",
+      "requirement": "Submissions must describe how the workload is deployed (pipeline, IaC, environments, rollback strategy).",
+      "expect": ["ci/cd", "cicd", "pipeline", "infrastructure as code", "terraform", "bicep", "arm template", "cloudformation", "deployment strategy", "rollback", "blue/green", "canary"],
+      "recommendation": "Document the deployment pipeline, IaC tooling, and rollback strategy (e.g. blue/green or canary)."
+    },
+    {
+      "id": "OPS-03",
+      "pillar": "operations",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Manual production changes outside pipeline",
+      "requirement": "Production changes made directly through the console/portal outside of the deployment pipeline are not permitted.",
+      "triggers": ["manual change in production", "changed directly in portal", "manual hotfix in prod", "console change in production", "clickops", "editing files directly in production", "ssh into the box", "ssh into production"],
+      "recommendation": "Route all production changes through the pipeline with code review and audit trail; no direct console edits."
+    },
+    {
+      "id": "OPS-04",
+      "pillar": "operations",
+      "severity": "gap",
+      "type": "require",
+      "title": "Incident response / on-call ownership not described",
+      "requirement": "Production workloads must name an owning team and describe the on-call/incident response process.",
+      "expect": ["on-call", "incident response", "runbook", "owning team", "escalation path"],
+      "recommendation": "Name the owning team, on-call rotation, and link the runbook/escalation path."
+    },
+    {
+      "id": "PERF-01",
+      "pillar": "performance",
+      "severity": "gap",
+      "type": "require",
+      "title": "Performance/scale targets not defined",
+      "requirement": "Submissions must state expected load (RPS/TPS, concurrent users, data volume) and latency targets.",
+      "expect": ["requests per second", "transactions per second", "latency target", "concurrent users", "throughput", "sla", "p95", "p99"],
+      "recommendation": "Define expected throughput, concurrency, and latency SLOs (e.g. p95/p99 targets)."
+    },
+    {
+      "id": "PERF-02",
+      "pillar": "performance",
+      "severity": "gap",
+      "type": "require",
+      "title": "Caching strategy not addressed",
+      "requirement": "Read-heavy or latency-sensitive workloads should describe a caching strategy (CDN, in-memory cache, or application cache).",
+      "expect": ["cache", "cdn", "content delivery network", "redis", "memcached"],
+      "recommendation": "Evaluate and document a caching layer (CDN and/or in-memory cache) for read-heavy paths."
+    },
+    {
+      "id": "PERF-03",
+      "pillar": "performance",
+      "severity": "exception",
+      "type": "conditional",
+      "title": "Synchronous chained calls across many services",
+      "requirement": "Long synchronous call chains across multiple services should be decoupled with async messaging/eventing unless justified.",
+      "triggers": ["synchronous chain", "chained synchronous calls", "sync call to sync call", "long synchronous dependency chain"],
+      "exceptionKeywords": ["latency justified", "approved deviation", "exception approved"],
+      "recommendation": "Introduce async messaging/eventing to decouple the chain, or document why synchronous coupling is required."
+    },
+    {
+      "id": "GOV-01",
+      "pillar": "governance",
+      "severity": "gap",
+      "type": "require",
+      "title": "Data classification not stated",
+      "requirement": "Submissions must state the data classification (e.g. public, internal, confidential, restricted) handled by the workload.",
+      "expect": ["data classification", "confidential data", "restricted data", "pii", "public data", "internal data"],
+      "recommendation": "State the data classification and handle it per the corresponding enterprise data-handling standard."
+    },
+    {
+      "id": "GOV-02",
+      "pillar": "governance",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Deployment to a non-approved region",
+      "requirement": "Workloads must be deployed only to enterprise-approved regions per data residency policy.",
+      "triggers": ["non-approved region", "unapproved region", "region not on approved list", "deployed outside approved regions"],
+      "recommendation": "Deploy only to approved regions, or obtain a data-residency exception before proceeding."
+    },
+    {
+      "id": "GOV-03",
+      "pillar": "governance",
+      "severity": "gap",
+      "type": "require",
+      "title": "Resource tagging / ownership metadata missing",
+      "requirement": "All resources must be tagged with owner, cost center, and environment per enterprise tagging standard.",
+      "expect": ["tagging standard", "resource tags", "cost center tag", "owner tag", "environment tag"],
+      "recommendation": "Apply the enterprise tagging standard (owner, cost center, environment) to all resources."
+    },
+    {
+      "id": "GOV-04",
+      "pillar": "governance",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Use of non-approved or shadow IT service",
+      "requirement": "Only services on the enterprise-approved service catalog may be used for production workloads.",
+      "triggers": ["shadow it", "non-approved saas", "unapproved third-party service", "unsanctioned tool", "unapproved vendor"],
+      "recommendation": "Replace with an approved service catalog entry, or submit an exception request through architecture review."
+    },
+    {
+      "id": "GOV-05",
+      "pillar": "governance",
+      "severity": "gap",
+      "type": "require",
+      "title": "Compliance/regulatory scope not addressed",
+      "requirement": "Submissions must state applicable compliance frameworks (e.g. SOC 2, PCI-DSS, HIPAA, GDPR) or explicitly state none apply.",
+      "expect": ["soc 2", "pci-dss", "pci dss", "hipaa", "gdpr", "compliance requirement", "no compliance requirement", "not applicable regulatory"],
+      "recommendation": "State applicable compliance frameworks and how the design satisfies their controls."
+    }
+  ]
+}
