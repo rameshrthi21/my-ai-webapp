@@ -49,8 +49,21 @@
             <option value="ml">AI / ML workload</option>
           </select>
 
+          <div class="import-row">
+            <button id="btn-import-diagram" class="btn-ghost" type="button">📎 Import diagram (.pptx / .vsdx)</button>
+            <input type="file" id="file-import-diagram" accept=".pptx,.vsdx" hidden />
+            <span id="import-status" class="status-text" aria-live="polite"></span>
+          </div>
+          <p class="import-note">
+            Pulls the text labels out of a PowerPoint or Visio diagram's shapes and drops them into the box below —
+            it reads labels, not the visual layout or connector meaning, so review and fill in anything the diagram
+            didn't spell out (regions, RTO/RPO, scale targets, etc.) before running. Only the newer XML-based
+            <code>.pptx</code>/<code>.vsdx</code> formats are supported (not legacy binary <code>.ppt</code>/<code>.vsd</code>
+            or raster images). Parsing happens entirely in your browser — the file is never uploaded anywhere.
+          </p>
+
           <label class="field-label" for="design-input">Architecture description</label>
-          <textarea id="design-input" rows="16" placeholder="Describe the proposed architecture: components, data flow, identity model, network topology, regions, resiliency approach, deployment pipeline, expected scale, data classification, compliance scope, etc. The more detail, the more accurate the review."></textarea>
+          <textarea id="design-input" rows="16" placeholder="Describe the proposed architecture: components, data flow, identity model, network topology, regions, resiliency approach, deployment pipeline, expected scale, data classification, compliance scope, etc. The more detail, the more accurate the review. Or use &quot;Import diagram&quot; above to pull labels from a .pptx/.vsdx file."></textarea>
 
           <div class="actions-row">
             <button id="btn-review" class="btn-primary" type="button">Run review</button>
@@ -163,6 +176,7 @@
   </article>
 </template>
 
+<script src="assets/diagram-import.js"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>

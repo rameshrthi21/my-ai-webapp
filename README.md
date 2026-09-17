@@ -44,6 +44,17 @@ automatically on every push.)
   architecture standards, not left as generic defaults.
 - The **History** tab keeps past reviews in `localStorage` so you can reload
   and re-check a submission later.
+- **Import diagram** (on the Review tab) reads a `.pptx` (PowerPoint) or `.vsdx`
+  (modern Visio) file entirely in the browser and pulls out the text labels
+  from its shapes/slides into the description box. It's a text-label
+  extraction, not a diagram-understanding feature — it doesn't see the visual
+  layout, arrows, or grouping, only whatever text was typed into each shape —
+  so review and fill in anything the diagram didn't spell out (regions,
+  RTO/RPO, scale targets, compliance scope) before running the review. Only
+  the newer XML-based `.pptx`/`.vsdx` formats are supported; legacy binary
+  `.ppt`/`.vsd` and raster images/screenshots of diagrams aren't. The file
+  never leaves your browser — it's parsed client-side with the native ZIP/XML
+  handling in `assets/diagram-import.js`, no upload, no library, no CDN.
 - The **Settings** tab has an optional, off-by-default AI narrative layer:
   bring your own Anthropic API key (stored only in your browser's
   `localStorage`, sent directly from your browser to Anthropic's API) and

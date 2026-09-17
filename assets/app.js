@@ -632,6 +632,22 @@
     content.appendChild(box);
   }
 
+  // ---------- diagram import ----------
+
+  async function importDiagram(file) {
+    const status = $("#import-status");
+    status.textContent = `Extracting text from ${file.name}…`;
+    try {
+      const result = await window.DiagramImport.extractArchitectureTextFromOfficeFile(file);
+      const header = `(Imported from "${file.name}" — ${result.formatLabel}, ${result.unitCount} ${result.kindLabel}${result.unitCount === 1 ? "" : "s"}. These are the diagram's text labels only, not its visual layout. Review this and add anything the diagram didn't spell out — regions, RTO/RPO, scale targets, compliance scope, etc. — before running the review.)\n\n`;
+      $("#design-input").value = header + result.text;
+      status.textContent = `Imported ${result.unitCount} ${result.kindLabel}${result.unitCount === 1 ? "" : "s"} from ${file.name}. Review the text below before running.`;
+    } catch (e) {
+      console.warn("Diagram import failed", e);
+      status.textContent = `Could not import: ${e.message}`;
+    }
+  }
+
   // ---------- sample ----------
 
   const FLAWED_SAMPLE = `We are building a customer-facing order management API for the retail division.
@@ -666,6 +682,13 @@ Cost: the instance runs 24/7 at a fixed size with no autoscaling, and no budget 
       $("#design-input").value = FLAWED_SAMPLE;
     });
     $("#btn-export").addEventListener("click", exportReport);
+
+    $("#btn-import-diagram").addEventListener("click", () => $("#file-import-diagram").click());
+    $("#file-import-diagram").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) importDiagram(file);
+      e.target.value = "";
+    });
 
     $("#btn-add-rule").addEventListener("click", () => openRuleEditor(null));
     $("#btn-export-rules").addEventListener("click", exportRules);
