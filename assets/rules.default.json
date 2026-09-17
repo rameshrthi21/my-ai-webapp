@@ -285,6 +285,116 @@
       "recommendation": "Replace with an approved service catalog entry, or submit an exception request through architecture review."
     },
     {
+      "id": "CAT-01",
+      "pillar": "governance",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Non-approved compute service",
+      "requirement": "Approved compute catalog: Azure App Service, Azure Kubernetes Service (AKS), Azure Container Apps, Azure Functions, Azure Virtual Machines. Other compute platforms require an architecture exception.",
+      "triggers": ["aws ec2", "aws lambda", "aws fargate", "aws elastic beanstalk", "google compute engine", "gcp cloud run", "google app engine", "heroku dyno", "digitalocean droplet", "self-hosted kubernetes on-prem"],
+      "recommendation": "Use an approved compute service (App Service, AKS, Container Apps, Functions, or Azure VMs), or file an exception."
+    },
+    {
+      "id": "CAT-02",
+      "pillar": "governance",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Non-approved relational database",
+      "requirement": "Approved relational database catalog: Azure SQL Database, Azure Database for PostgreSQL, Azure Database for MySQL. Other relational database platforms require an architecture exception.",
+      "triggers": ["amazon rds", "aws aurora", "google cloud sql", "self-managed mysql on a vm", "self-managed postgres on a vm", "self-hosted oracle database"],
+      "recommendation": "Use an approved managed relational database (Azure SQL, Azure Database for PostgreSQL/MySQL), or file an exception."
+    },
+    {
+      "id": "CAT-03",
+      "pillar": "governance",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Non-approved NoSQL / document database",
+      "requirement": "Approved NoSQL catalog: Azure Cosmos DB. Other NoSQL platforms require an architecture exception.",
+      "triggers": ["mongodb atlas", "self-hosted mongodb", "dynamodb", "google firestore", "self-hosted cassandra"],
+      "recommendation": "Use Azure Cosmos DB, or file an exception if a specific API/compatibility requirement isn't met."
+    },
+    {
+      "id": "CAT-04",
+      "pillar": "governance",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Non-approved object/blob storage",
+      "requirement": "Approved storage catalog: Azure Blob Storage, Azure Data Lake Storage. Other object storage platforms require an architecture exception.",
+      "triggers": ["amazon s3", "google cloud storage", "self-hosted minio"],
+      "recommendation": "Use Azure Blob Storage or Azure Data Lake Storage, or file an exception."
+    },
+    {
+      "id": "CAT-05",
+      "pillar": "governance",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Non-approved messaging / eventing service",
+      "requirement": "Approved messaging catalog: Azure Service Bus, Azure Event Hubs, Azure Event Grid. Other messaging platforms require an architecture exception.",
+      "triggers": ["amazon sqs", "amazon sns", "self-managed kafka", "self-hosted rabbitmq", "google pub/sub"],
+      "recommendation": "Use Service Bus, Event Hubs, or Event Grid, or file an exception if a specific streaming feature isn't met."
+    },
+    {
+      "id": "CAT-06",
+      "pillar": "governance",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Non-approved identity provider",
+      "requirement": "Approved identity catalog: Microsoft Entra ID, Azure AD B2C. Other identity providers require an architecture exception.",
+      "triggers": ["auth0", "okta", "aws cognito", "firebase auth", "custom-built authentication service"],
+      "recommendation": "Use Entra ID or Azure AD B2C for authentication/authorization, or file an exception."
+    },
+    {
+      "id": "CAT-07",
+      "pillar": "governance",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Non-approved secrets management",
+      "requirement": "Approved secrets catalog: Azure Key Vault. Storing secrets elsewhere (including other managed vaults) requires an architecture exception.",
+      "triggers": ["hashicorp vault self-hosted", "aws secrets manager", "secrets in environment variables", ".env file in the repo"],
+      "recommendation": "Use Azure Key Vault for all secrets, keys, and certificates, or file an exception."
+    },
+    {
+      "id": "CAT-08",
+      "pillar": "governance",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Non-approved CI/CD platform",
+      "requirement": "Approved CI/CD catalog: GitHub Actions, Azure DevOps Pipelines. Other CI/CD platforms require an architecture exception.",
+      "triggers": ["self-hosted jenkins", "circleci", "travis ci", "unmanaged gitlab ci runner"],
+      "recommendation": "Use GitHub Actions or Azure DevOps Pipelines, or file an exception."
+    },
+    {
+      "id": "CAT-09",
+      "pillar": "governance",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Non-approved monitoring / observability platform",
+      "requirement": "Approved observability catalog: Azure Monitor, Application Insights. Other monitoring platforms require an architecture exception.",
+      "triggers": ["datadog", "new relic", "splunk", "self-hosted prometheus without central aggregation"],
+      "recommendation": "Use Azure Monitor / Application Insights, or file an exception if a specialized capability isn't covered."
+    },
+    {
+      "id": "CAT-10",
+      "pillar": "governance",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Non-approved CDN / edge platform",
+      "requirement": "Approved CDN catalog: Azure Front Door, Azure CDN. Other CDN/edge platforms require an architecture exception.",
+      "triggers": ["cloudflare", "akamai", "fastly", "aws cloudfront"],
+      "recommendation": "Use Azure Front Door or Azure CDN, or file an exception."
+    },
+    {
+      "id": "CAT-11",
+      "pillar": "governance",
+      "severity": "violation",
+      "type": "flag",
+      "title": "Non-approved API management platform",
+      "requirement": "Approved API management catalog: Azure API Management. Other API gateway platforms require an architecture exception.",
+      "triggers": ["self-hosted kong", "aws api gateway", "apigee"],
+      "recommendation": "Use Azure API Management, or file an exception."
+    },
+    {
       "id": "GOV-05",
       "pillar": "governance",
       "severity": "gap",

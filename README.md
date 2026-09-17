@@ -26,7 +26,7 @@ automatically on every push.)
 
 ## How it works
 
-- **`assets/rules.default.json`** is the seed rule pack — ~30 rules across
+- **`assets/rules.default.json`** is the seed rule pack — ~39 rules across
   Security, Reliability, Cost Optimization, Operational Excellence,
   Performance Efficiency, and Enterprise Governance. Each rule has:
   - a `type`: `flag` (anti-pattern present → fail), `conditional` (fail
@@ -52,6 +52,38 @@ automatically on every push.)
 
 Everything runs client-side. No backend, no database, no data leaves your
 browser unless you explicitly turn on the AI narrative feature.
+
+## Approved service catalog (`CAT-*` rules)
+
+Eleven rules (`CAT-01`–`CAT-11`, under the Enterprise Governance pillar) check
+a submission against a starter **approved-service catalog**, one rule per
+category: Compute, Relational Database, NoSQL/Document Database, Object
+Storage, Messaging/Eventing, Identity, Secrets Management, CI/CD, Monitoring,
+CDN, and API Management. Each rule's `requirement` names the approved
+option(s) for that category, and it fires as a **violation** when the
+submission mentions a common non-approved alternative instead (e.g. `AWS
+Lambda` for Compute, `Auth0`/`Okta` for Identity, `AWS S3` for Object
+Storage).
+
+The shipped list is a **representative Azure-centric starter**, not your
+org's real catalog — it doesn't know what's actually approved anywhere
+outside the words you put in these rules. Two things to know about how it
+works and where its limits are:
+
+- It's a **blocklist of common alternatives per category**, not a true
+  allow-list — it can only catch a mention of a non-approved service if that
+  service's name is in the rule's `triggers`. A service that isn't in the
+  triggers list at all (approved or not) won't be flagged either way.
+- It's still just text matching. It has no live connection to Azure, a CMDB,
+  or a real service catalog API — it never inspects actual deployed
+  resources, only the words in the submission box.
+
+To make this reflect your organization's actual approved-service catalog:
+open the **Rule Library** tab, find the `CAT-*` rules (or add new ones for
+categories not covered), and edit each `requirement` and `triggers` list to
+match what's really approved/disallowed at your org. Export the result so
+you don't lose it, and see "Customizing for your org" below to make it the
+new default for everyone.
 
 ## Customizing for your org
 
