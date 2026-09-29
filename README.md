@@ -56,15 +56,29 @@ automatically on every push.)
   never leaves your browser — it's parsed client-side with the native ZIP/XML
   handling in `assets/diagram-import.js`, no upload, no library, no CDN.
 - The **Cloud Roadmap** tab holds `assets/csr.default.json` — your master
-  **Cloud Service Roadmap (CSR)**: every technology your org tracks, each
-  with a lifecycle status (**Strategic**, **Current**, **Contain**,
-  **Sunset**, **Retired**, or **Emerging**), a category, aliases, and a
-  recommended replacement. Every "Run review" also matches the submission
-  text against this list and reports each recognized technology's status —
-  a Retired/Sunset match is a flag to act on, an Emerging match needs
-  governance sign-off, Contain/Current/Strategic are informational. Like the
-  Rule Library, it's editable/exportable/importable and meant to be replaced
-  with your org's actual roadmap.
+  **Cloud Service Roadmap (CSR)**, modeled on a real Azure landing-zone
+  governance pattern: every service has an **independent status per
+  subscription type** — **vNET / Private** (intranet apps, connected to the
+  corporate network) vs. **External / Public** (internet-facing, no direct
+  corporate network path) — since what's allowed for one is often denied for
+  the other. A status is **Allowed**, **Denied**, or **In-Evaluation**; a
+  Denied status can additionally be **Exception possible** (approvable via a
+  Deviation Request, with a link to the exception process) or have an
+  **Enterprise service alternative** (a centrally managed platform to
+  consume instead of self-service — its own catalog lives in the
+  "Enterprise service alternatives" panel on the same tab). Each service
+  also has **allowed regions per subscription type**, checked against the
+  "Region availability" panel (also on that tab).
+  On the Review tab, pick a **subscription type**, and any service
+  name/alias mentioned in the submission is checked against its status for
+  that type — plus whether any region mentioned in the text is pre-approved
+  for it — and reported with the same badge vocabulary (✓/✕/⚠/⬢/⏳). Like the
+  Rule Library, all three lists (services, enterprise alternatives, regions)
+  are editable/exportable/importable and meant to be replaced with your
+  org's actual roadmap. The shipped 31 services/4 enterprise alternatives/9
+  regions are a representative starter (adapted from a companion demo
+  roadmap site, with placeholder `example.com` links), not your org's real
+  data — same caveat as the `CAT-*` rules below.
 - The **Settings** tab has an optional, off-by-default AI narrative layer:
   bring your own Anthropic API key (stored only in your browser's
   `localStorage`, sent directly from your browser to Anthropic's API) and
@@ -120,7 +134,8 @@ new default for everyone.
 1. Open the **Rule Library** tab and edit/add/remove rules to match your
    actual enterprise patterns, approved service catalog, data residency
    policy, tagging standard, etc. Open the **Cloud Roadmap** tab and do the
-   same for your organization's real technology lifecycle statuses.
+   same for your organization's real per-subscription-type service statuses,
+   enterprise alternatives, and region availability.
 2. Use **Export JSON** to save your customized rule pack / CSR, and
    **Import JSON** to load either back in (or to share it with teammates /
    commit it to the repo as a new default).

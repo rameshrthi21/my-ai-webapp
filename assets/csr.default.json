@@ -1,68 +1,1377 @@
 {
-  "version": "1.0.0",
-  "name": "Default Enterprise Cloud Service Roadmap (CSR)",
-  "statuses": [
-    { "id": "strategic", "name": "Strategic", "description": "Default choice for new work — actively invested in and encouraged." },
-    { "id": "current", "name": "Current", "description": "Approved standard. Fine to use for new work." },
-    { "id": "contain", "name": "Contain", "description": "Allowed for existing use only — do not start new use without an exception." },
-    { "id": "sunset", "name": "Sunset", "description": "Being retired. Do not start new use; migrate existing use to the listed replacement by the target date." },
-    { "id": "retired", "name": "Retired", "description": "Prohibited. No longer allowed anywhere, including existing use." },
-    { "id": "emerging", "name": "Emerging", "description": "Trial/pilot only. Requires architecture review approval before use beyond a sanctioned pilot." }
+  "version": "2.0.0",
+  "name": "Enterprise Cloud Platform – Cloud Service Roadmap",
+  "dataVersion": "2026.07.1",
+  "lastUpdated": "2026-07-01",
+  "maintainedBy": "Enterprise Cloud Platform Team",
+  "contact": "cloud-platform-team@example.com",
+  "disclaimer": "This roadmap reflects the current Azure Landing Zone governance decisions of the Enterprise Cloud Platform team. It is generated from the master Cloud Service Roadmap Excel workbook, which remains the formal source of truth. Denied and restricted services may be requestable through the Exception & Deviation process; approval is never guaranteed and always requires review by the Cloud Governance Board.",
+  "subscriptionTypes": [
+    {
+      "id": "vnet",
+      "name": "vNET / Private",
+      "description": "Intranet applications with direct network connectivity to the corporate vNET and on-premises data centers via the hub-spoke topology."
+    },
+    {
+      "id": "external",
+      "name": "External / Public",
+      "description": "Internet-facing applications with no direct connectivity to the corporate vNET or on-prem; internal integration must go through the Cloud Integration Platform."
+    }
+  ],
+  "enterpriseServices": [
+    {
+      "id": "enterprise-ai-foundry",
+      "name": "Enterprise AI Foundry Service",
+      "shortName": "Enterprise AI Foundry",
+      "category": "AI + Machine Learning",
+      "description": "Centrally managed Azure AI Foundry / Azure OpenAI offering. Provides governed access to foundation models, prompt flow, and model deployment without individual teams standing up their own AI Foundry or OpenAI resources. Includes cost chargeback, content-safety guardrails, and pre-approved model catalog.",
+      "owner": "AI Platform Team",
+      "link": "https://intranet.example.com/enterprise-ai-foundry",
+      "onboardingLink": "https://intranet.example.com/enterprise-ai-foundry/onboarding"
+    },
+    {
+      "id": "enterprise-data-platform",
+      "name": "Enterprise Data Platform",
+      "shortName": "Enterprise Data Platform",
+      "category": "Databases",
+      "description": "Central analytics and data-integration platform covering ingestion, curated lakehouse zones, and enterprise reporting. Replaces individually deployed Synapse workspaces and Data Factory instances with a governed, shared-cost, multi-tenant platform.",
+      "owner": "Enterprise Data Platform Team",
+      "link": "https://intranet.example.com/enterprise-data-platform",
+      "onboardingLink": "https://intranet.example.com/enterprise-data-platform/onboarding"
+    },
+    {
+      "id": "cloud-integration-platform",
+      "name": "Cloud Integration Platform",
+      "shortName": "Cloud Integration Platform",
+      "category": "Integration",
+      "description": "The approved pattern for connectivity between internal (vNET/private) systems and external (public/internet-facing) applications. Since external subscriptions have no direct network path to the corporate vNET or on-premises data centers, all internal-to-external integration must route through this platform's managed APIs, message relays, and gateway patterns.",
+      "owner": "Integration Platform Team",
+      "link": "https://intranet.example.com/cloud-integration-platform",
+      "onboardingLink": "https://intranet.example.com/cloud-integration-platform/onboarding"
+    },
+    {
+      "id": "lab-as-a-service",
+      "name": "Lab-as-a-Service",
+      "shortName": "Lab-as-a-Service",
+      "category": "DevOps",
+      "description": "Centrally managed sandbox and training-lab environments with automatic expiry, cost caps, and pre-approved images. Replaces ad hoc use of Azure DevTest Labs in individual subscriptions.",
+      "owner": "Enterprise Cloud Platform Team",
+      "link": "https://intranet.example.com/lab-as-a-service",
+      "onboardingLink": "https://intranet.example.com/lab-as-a-service/onboarding"
+    }
+  ],
+  "regions": [
+    {
+      "id": "westeurope",
+      "name": "West Europe",
+      "vnetAvailable": true,
+      "externalAvailable": true,
+      "notes": "Primary EU hub region for both subscription types."
+    },
+    {
+      "id": "northeurope",
+      "name": "North Europe",
+      "vnetAvailable": true,
+      "externalAvailable": true,
+      "notes": "Secondary EU hub region; paired with West Europe for high availability."
+    },
+    {
+      "id": "germanywestcentral",
+      "name": "Germany West Central",
+      "vnetAvailable": true,
+      "externalAvailable": false,
+      "notes": "Private only. Reserved for Germany data-residency workloads connected to the on-prem SAP landscape."
+    },
+    {
+      "id": "uksouth",
+      "name": "UK South",
+      "vnetAvailable": true,
+      "externalAvailable": false,
+      "notes": "Private only. Supports UK regional operations and on-prem connectivity."
+    },
+    {
+      "id": "eastus",
+      "name": "East US",
+      "vnetAvailable": false,
+      "externalAvailable": true,
+      "notes": "Public/external subscriptions only. No corporate backbone connectivity is extended to US regions."
+    },
+    {
+      "id": "eastus2",
+      "name": "East US 2",
+      "vnetAvailable": false,
+      "externalAvailable": true,
+      "notes": "Paired region to East US for external disaster recovery."
+    },
+    {
+      "id": "centralindia",
+      "name": "Central India",
+      "vnetAvailable": false,
+      "externalAvailable": true,
+      "notes": "No private region. Public/external subscriptions only."
+    },
+    {
+      "id": "southeastasia",
+      "name": "Southeast Asia",
+      "vnetAvailable": false,
+      "externalAvailable": true,
+      "notes": "Supports APAC-facing external applications."
+    },
+    {
+      "id": "brazilsouth",
+      "name": "Brazil South",
+      "vnetAvailable": false,
+      "externalAvailable": false,
+      "notes": "Not enabled in the tenant. Region-locked pending data-sovereignty review; request via the Exception Catalog if required."
+    }
   ],
   "entries": [
-    { "id": "CSR-001", "name": "Azure App Service", "category": "Compute", "status": "strategic", "aliases": [], "replacement": null, "migrateBy": null, "notes": "Default PaaS compute for web/API workloads." },
-    { "id": "CSR-002", "name": "Azure Kubernetes Service", "category": "Compute", "status": "strategic", "aliases": ["aks"], "replacement": null, "migrateBy": null, "notes": "Default platform for containerized microservices at scale." },
-    { "id": "CSR-003", "name": "Azure Container Apps", "category": "Compute", "status": "emerging", "aliases": [], "replacement": null, "migrateBy": null, "notes": "Approved for pilot use on new event-driven/microservice workloads; not yet the default over AKS for production-critical services." },
-    { "id": "CSR-004", "name": "Azure Functions", "category": "Compute", "status": "current", "aliases": [], "replacement": null, "migrateBy": null, "notes": "Approved for event-driven and lightweight serverless workloads." },
-    { "id": "CSR-005", "name": "Azure Virtual Machines", "category": "Compute", "status": "contain", "aliases": ["azure vm", "azure vms"], "replacement": "Azure App Service or AKS", "migrateBy": null, "notes": "Allowed only for lift-and-shift of existing workloads with a documented PaaS migration plan; not for new greenfield builds." },
-    { "id": "CSR-006", "name": "Azure Service Fabric", "category": "Compute", "status": "sunset", "aliases": [], "replacement": "Azure Kubernetes Service", "migrateBy": "Q4 2026", "notes": "Superseded by AKS as the standard container orchestration platform." },
-    { "id": "CSR-007", "name": "On-premises VMware", "category": "Compute", "status": "retired", "aliases": ["vmware on-prem", "on-prem vmware"], "replacement": "Azure Virtual Machines (contained) or Azure App Service", "migrateBy": null, "notes": "Data center exit complete; no new on-prem VM workloads permitted." },
-
-    { "id": "CSR-008", "name": "Azure SQL Database", "category": "Relational Database", "status": "strategic", "aliases": ["azure sql"], "replacement": null, "migrateBy": null, "notes": "Default relational database for new OLTP workloads." },
-    { "id": "CSR-009", "name": "Azure Database for PostgreSQL", "category": "Relational Database", "status": "current", "aliases": ["azure postgresql", "azure postgres"], "replacement": null, "migrateBy": null, "notes": "Approved for workloads requiring native PostgreSQL compatibility." },
-    { "id": "CSR-010", "name": "SQL Server on a VM", "category": "Relational Database", "status": "sunset", "aliases": ["self-managed sql server", "sql server on a virtual machine"], "replacement": "Azure SQL Database", "migrateBy": "Q2 2027", "notes": "Migrate to managed Azure SQL to shed patching/backup overhead and licensing cost." },
-    { "id": "CSR-011", "name": "Oracle Database", "category": "Relational Database", "status": "contain", "aliases": ["oracle db"], "replacement": "Azure Database for PostgreSQL", "migrateBy": null, "notes": "Existing licensed workloads only; new projects require an exception given licensing cost." },
-    { "id": "CSR-012", "name": "MongoDB Atlas", "category": "NoSQL Database", "status": "retired", "aliases": [], "replacement": "Azure Cosmos DB (API for MongoDB)", "migrateBy": null, "notes": "Not on the approved catalog — data residency and billing must stay within the Azure tenant." },
-    { "id": "CSR-013", "name": "IBM DB2", "category": "Relational Database", "status": "retired", "aliases": ["db2"], "replacement": "Azure SQL Database", "migrateBy": null, "notes": "Mainframe database platform being decommissioned org-wide." },
-
-    { "id": "CSR-014", "name": "Azure Cosmos DB", "category": "NoSQL Database", "status": "strategic", "aliases": ["cosmos db", "cosmosdb"], "replacement": null, "migrateBy": null, "notes": "Default globally-distributed NoSQL/document database." },
-    { "id": "CSR-015", "name": "Self-hosted MongoDB", "category": "NoSQL Database", "status": "retired", "aliases": ["self-managed mongodb"], "replacement": "Azure Cosmos DB (API for MongoDB)", "migrateBy": null, "notes": "Operational and patching burden not accepted for a database tier we already have a managed equivalent for." },
-
-    { "id": "CSR-016", "name": "Azure Blob Storage", "category": "Object Storage", "status": "strategic", "aliases": ["blob storage"], "replacement": null, "migrateBy": null, "notes": "Default object storage." },
-    { "id": "CSR-017", "name": "Azure Data Lake Storage", "category": "Object Storage", "status": "current", "aliases": ["adls", "data lake storage gen2"], "replacement": null, "migrateBy": null, "notes": "Approved for analytics/data-lake workloads requiring hierarchical namespace." },
-    { "id": "CSR-018", "name": "Amazon S3", "category": "Object Storage", "status": "retired", "aliases": ["aws s3"], "replacement": "Azure Blob Storage", "migrateBy": null, "notes": "Single-cloud (Azure) policy for object storage; no new S3 usage." },
-    { "id": "CSR-019", "name": "On-premises file share", "category": "Object Storage", "status": "sunset", "aliases": ["on-prem nas", "on-prem san", "network file share"], "replacement": "Azure Blob Storage or Azure Files", "migrateBy": "Q3 2026", "notes": "On-prem storage being decommissioned as part of data center exit." },
-
-    { "id": "CSR-020", "name": "Azure Service Bus", "category": "Messaging & Eventing", "status": "strategic", "aliases": ["service bus"], "replacement": null, "migrateBy": null, "notes": "Default for enterprise messaging (queues/topics)." },
-    { "id": "CSR-021", "name": "Azure Event Hubs", "category": "Messaging & Eventing", "status": "current", "aliases": ["event hubs"], "replacement": null, "migrateBy": null, "notes": "Approved for high-throughput event streaming." },
-    { "id": "CSR-022", "name": "Azure Event Grid", "category": "Messaging & Eventing", "status": "current", "aliases": ["event grid"], "replacement": null, "migrateBy": null, "notes": "Approved for event routing/pub-sub between services." },
-    { "id": "CSR-023", "name": "Self-managed Apache Kafka", "category": "Messaging & Eventing", "status": "contain", "aliases": ["self-hosted kafka", "self-managed kafka"], "replacement": "Azure Event Hubs", "migrateBy": null, "notes": "Existing clusters only; new projects should use Event Hubs' Kafka-compatible endpoint instead of operating Kafka." },
-    { "id": "CSR-024", "name": "IBM MQ", "category": "Messaging & Eventing", "status": "sunset", "aliases": [], "replacement": "Azure Service Bus", "migrateBy": "Q1 2027", "notes": "Legacy enterprise messaging platform being retired." },
-    { "id": "CSR-025", "name": "Self-hosted RabbitMQ", "category": "Messaging & Eventing", "status": "retired", "aliases": ["self-managed rabbitmq"], "replacement": "Azure Service Bus", "migrateBy": null, "notes": "Operational burden of self-managed brokers not accepted where a managed equivalent exists." },
-
-    { "id": "CSR-026", "name": "Microsoft Entra ID", "category": "Identity", "status": "strategic", "aliases": ["entra id", "azure ad"], "replacement": null, "migrateBy": null, "notes": "Enterprise identity provider of record." },
-    { "id": "CSR-027", "name": "Azure AD B2C", "category": "Identity", "status": "current", "aliases": ["ad b2c"], "replacement": null, "migrateBy": null, "notes": "Approved for customer-facing identity (CIAM)." },
-    { "id": "CSR-028", "name": "Okta", "category": "Identity", "status": "retired", "aliases": [], "replacement": "Microsoft Entra ID", "migrateBy": null, "notes": "Superseded by Entra ID as the single enterprise identity provider." },
-    { "id": "CSR-029", "name": "Auth0", "category": "Identity", "status": "retired", "aliases": [], "replacement": "Azure AD B2C", "migrateBy": null, "notes": "Not approved for new customer-identity workloads." },
-
-    { "id": "CSR-030", "name": "Azure Key Vault", "category": "Secrets Management", "status": "strategic", "aliases": ["key vault"], "replacement": null, "migrateBy": null, "notes": "Mandatory for all secrets, keys, and certificates." },
-    { "id": "CSR-031", "name": "Self-hosted HashiCorp Vault", "category": "Secrets Management", "status": "contain", "aliases": ["self-managed vault"], "replacement": "Azure Key Vault", "migrateBy": null, "notes": "Existing integrations only; new projects must use Key Vault." },
-
-    { "id": "CSR-032", "name": "GitHub Actions", "category": "CI/CD", "status": "strategic", "aliases": [], "replacement": null, "migrateBy": null, "notes": "Default CI/CD platform." },
-    { "id": "CSR-033", "name": "Azure DevOps Pipelines", "category": "CI/CD", "status": "current", "aliases": ["azure devops"], "replacement": null, "migrateBy": null, "notes": "Approved alternative CI/CD platform, primarily for teams already standardized on Azure Boards." },
-    { "id": "CSR-034", "name": "Self-hosted Jenkins", "category": "CI/CD", "status": "sunset", "aliases": [], "replacement": "GitHub Actions", "migrateBy": "Q2 2026", "notes": "Being retired in favor of managed CI/CD; stop onboarding new pipelines to Jenkins." },
-    { "id": "CSR-035", "name": "CircleCI", "category": "CI/CD", "status": "retired", "aliases": [], "replacement": "GitHub Actions", "migrateBy": null, "notes": "Not on the approved CI/CD catalog." },
-
-    { "id": "CSR-036", "name": "Azure Monitor", "category": "Monitoring & Observability", "status": "strategic", "aliases": ["application insights"], "replacement": null, "migrateBy": null, "notes": "Default observability platform (metrics, logs, alerting, tracing)." },
-    { "id": "CSR-037", "name": "Datadog", "category": "Monitoring & Observability", "status": "contain", "aliases": [], "replacement": "Azure Monitor / Application Insights", "migrateBy": null, "notes": "Existing contracted usage only; new workloads should standardize on Azure Monitor." },
-    { "id": "CSR-038", "name": "Splunk", "category": "Monitoring & Observability", "status": "sunset", "aliases": [], "replacement": "Azure Monitor", "migrateBy": "Q4 2026", "notes": "On-prem Splunk deployment being retired as part of observability consolidation." },
-
-    { "id": "CSR-039", "name": "Azure Front Door", "category": "CDN & Edge", "status": "strategic", "aliases": [], "replacement": null, "migrateBy": null, "notes": "Default global entry point (CDN + WAF + load balancing)." },
-    { "id": "CSR-040", "name": "Azure API Management", "category": "API Management", "status": "current", "aliases": ["apim"], "replacement": null, "migrateBy": null, "notes": "Approved API gateway platform." },
-    { "id": "CSR-041", "name": "Cloudflare", "category": "CDN & Edge", "status": "retired", "aliases": [], "replacement": "Azure Front Door", "migrateBy": null, "notes": "Not approved for production edge/CDN traffic." },
-
-    { "id": "CSR-042", "name": "Azure OpenAI Service", "category": "Analytics & AI/ML", "status": "emerging", "aliases": [], "replacement": null, "migrateBy": null, "notes": "Approved for sanctioned pilots only; broader production use requires architecture review sign-off on data handling and cost controls." },
-    { "id": "CSR-043", "name": "Azure Databricks", "category": "Analytics & AI/ML", "status": "current", "aliases": [], "replacement": null, "migrateBy": null, "notes": "Approved for large-scale data engineering and ML workloads." },
-    { "id": "CSR-044", "name": "Azure Synapse Analytics", "category": "Analytics & AI/ML", "status": "current", "aliases": ["synapse"], "replacement": null, "migrateBy": null, "notes": "Approved for enterprise data warehousing." }
+    {
+      "id": "azure-virtual-machines",
+      "name": "Azure Virtual Machines",
+      "category": "Compute",
+      "description": "IaaS virtual machines for general-purpose and specialized workloads.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard building block for private workloads. Only approved VM SKUs per the size-governance policy may be provisioned."
+        },
+        "external": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Approved for internet-facing workloads. Must sit behind an approved edge pattern (Application Gateway or Front Door) and hardened NSGs."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": [
+          "westeurope",
+          "northeurope",
+          "eastus",
+          "eastus2",
+          "centralindia",
+          "southeastasia"
+        ]
+      },
+      "lastReviewed": "2026-05-12",
+      "tags": [
+        "iaas",
+        "vm",
+        "compute"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "azure-kubernetes-service",
+      "name": "Azure Kubernetes Service (AKS)",
+      "category": "Compute",
+      "description": "Managed Kubernetes container orchestration service.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Allowed with mandatory Azure Policy add-on and private cluster configuration."
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": true,
+          "notes": "Denied by default for external subscriptions due to the increased attack surface of an internet-facing control plane. Approvable via Deviation Request, mandating a private cluster behind the Front Door + WAF pattern.",
+          "exceptionLink": "https://intranet.example.com/exception-catalog"
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": []
+      },
+      "lastReviewed": "2026-04-22",
+      "tags": [
+        "kubernetes",
+        "containers",
+        "compute"
+      ],
+      "aliases": [
+        "aks"
+      ]
+    },
+    {
+      "id": "azure-app-service",
+      "name": "Azure App Service",
+      "category": "Compute",
+      "description": "Fully managed platform for hosting web apps, REST APIs, and mobile back ends.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard PaaS hosting option for private line-of-business applications."
+        },
+        "external": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard PaaS hosting option for internet-facing applications; must be fronted by Front Door or Application Gateway per the edge pattern."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": [
+          "westeurope",
+          "northeurope",
+          "eastus",
+          "eastus2",
+          "centralindia",
+          "southeastasia"
+        ]
+      },
+      "lastReviewed": "2026-05-12",
+      "tags": [
+        "paas",
+        "web",
+        "compute"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "azure-functions",
+      "name": "Azure Functions",
+      "category": "Compute",
+      "description": "Event-driven, serverless compute platform.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Allowed on the Premium or App Service plan with VNet integration; Consumption plan requires the private-endpoint variant."
+        },
+        "external": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Approved for lightweight internet-facing APIs and webhooks."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": [
+          "westeurope",
+          "northeurope",
+          "eastus",
+          "eastus2",
+          "centralindia",
+          "southeastasia"
+        ]
+      },
+      "lastReviewed": "2026-03-30",
+      "tags": [
+        "serverless",
+        "compute",
+        "functions"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "azure-front-door",
+      "name": "Azure Front Door",
+      "category": "Networking",
+      "description": "Global HTTP load balancer, CDN, and application-layer edge platform.",
+      "status": {
+        "vnet": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Not permitted in private subscriptions under any deviation."
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": true,
+          "notes": "Denied by default. Approvable via Deviation Request in the Exception Catalog for internet-facing apps only.",
+          "exceptionLink": "https://intranet.example.com/exception-catalog"
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [],
+        "external": [
+          "westeurope",
+          "northeurope",
+          "centralindia"
+        ]
+      },
+      "lastReviewed": "2026-06-01",
+      "tags": [
+        "cdn",
+        "waf",
+        "load-balancer"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "azure-application-gateway",
+      "name": "Azure Application Gateway",
+      "category": "Networking",
+      "description": "Regional layer-7 load balancer with an integrated web application firewall.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard internal edge/ingress pattern. WAF_v2 SKU is mandatory."
+        },
+        "external": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard external edge pattern for internet-facing apps not fronted by Front Door. WAF_v2 SKU is mandatory."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": [
+          "westeurope",
+          "northeurope",
+          "eastus",
+          "eastus2",
+          "centralindia",
+          "southeastasia"
+        ]
+      },
+      "lastReviewed": "2026-05-20",
+      "tags": [
+        "waf",
+        "load-balancer",
+        "ingress"
+      ],
+      "aliases": [
+        "app gateway",
+        "application gateway"
+      ]
+    },
+    {
+      "id": "azure-vpn-gateway",
+      "name": "Azure VPN Gateway",
+      "category": "Networking",
+      "description": "Site-to-site and point-to-site VPN connectivity for a virtual network.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Used for site-to-site connectivity to on-premises data centers alongside ExpressRoute."
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Not applicable. External subscriptions have no direct vNET/on-prem connectivity by design; use the Cloud Integration Platform for internal-external integration instead."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": []
+      },
+      "lastReviewed": "2026-02-14",
+      "tags": [
+        "vpn",
+        "connectivity",
+        "hybrid"
+      ],
+      "aliases": [
+        "vpn gateway"
+      ]
+    },
+    {
+      "id": "azure-firewall",
+      "name": "Azure Firewall",
+      "category": "Networking",
+      "description": "Managed, cloud-native network firewall and threat-protection service.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Mandatory perimeter control for private subscriptions with internet egress; must be deployed per the central hub-spoke pattern."
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "External subscriptions do not manage their own perimeter firewall. Edge protection is provided centrally via Front Door/WAF and the Cloud Integration Platform."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": []
+      },
+      "lastReviewed": "2026-05-20",
+      "tags": [
+        "firewall",
+        "security",
+        "networking"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "azure-cdn",
+      "name": "Azure Content Delivery Network",
+      "category": "Networking",
+      "description": "Global content-delivery network for caching static content close to users.",
+      "status": {
+        "vnet": {
+          "state": "In-Evaluation",
+          "exceptionPossible": false,
+          "notes": "Under evaluation by the network architecture board; not yet approved for general use in private subscriptions."
+        },
+        "external": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Approved for static-content acceleration on public-facing sites."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [],
+        "external": [
+          "westeurope",
+          "northeurope",
+          "eastus",
+          "eastus2",
+          "southeastasia"
+        ]
+      },
+      "lastReviewed": "2026-01-18",
+      "tags": [
+        "cdn",
+        "caching",
+        "networking"
+      ],
+      "aliases": [
+        "azure cdn",
+        "content delivery network"
+      ]
+    },
+    {
+      "id": "azure-storage-account",
+      "name": "Azure Storage Account",
+      "category": "Storage",
+      "description": "General-purpose object, blob, queue, table, and file storage.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard storage service. Private endpoints required; public network access must be disabled."
+        },
+        "external": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard storage service for internet-facing workloads. Public access restricted to explicit container/blob level with SAS or Front Door origin lock where applicable."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": [
+          "westeurope",
+          "northeurope",
+          "eastus",
+          "eastus2",
+          "centralindia",
+          "southeastasia"
+        ]
+      },
+      "lastReviewed": "2026-05-12",
+      "tags": [
+        "storage",
+        "blob",
+        "files"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "azure-netapp-files",
+      "name": "Azure NetApp Files",
+      "category": "Storage",
+      "description": "High-performance, low-latency managed file storage for enterprise workloads.",
+      "status": {
+        "vnet": {
+          "state": "Denied",
+          "exceptionPossible": true,
+          "notes": "Denied by default due to high fixed cost. Approvable via Deviation Request for workloads with a validated low-latency shared-file requirement (e.g. SAP, HPC).",
+          "exceptionLink": "https://intranet.example.com/exception-catalog"
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Not available to external subscriptions. No supported use case identified."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [],
+        "external": []
+      },
+      "lastReviewed": "2026-02-28",
+      "tags": [
+        "storage",
+        "nfs",
+        "smb",
+        "hpc"
+      ],
+      "aliases": [
+        "anf"
+      ]
+    },
+    {
+      "id": "azure-data-lake-storage",
+      "name": "Azure Data Lake Storage Gen2",
+      "category": "Storage",
+      "description": "Hierarchical-namespace object storage optimized for big-data analytics.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Allowed for team-scoped analytics datasets. For enterprise-wide analytics, prefer onboarding to the Enterprise Data Platform instead of standalone storage."
+        },
+        "external": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Allowed for public dataset publishing scenarios with explicit access review."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": [
+          "westeurope",
+          "northeurope",
+          "eastus",
+          "eastus2",
+          "centralindia",
+          "southeastasia"
+        ]
+      },
+      "lastReviewed": "2026-04-02",
+      "tags": [
+        "storage",
+        "data-lake",
+        "analytics"
+      ],
+      "aliases": [
+        "adls",
+        "data lake storage gen2",
+        "adls gen2"
+      ]
+    },
+    {
+      "id": "azure-sql-database",
+      "name": "Azure SQL Database",
+      "category": "Databases",
+      "description": "Fully managed PaaS relational database engine.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard relational database option for private applications. Private endpoint required."
+        },
+        "external": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard relational database option for internet-facing applications with public network access disabled outside of approved firewall rules."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": [
+          "westeurope",
+          "northeurope",
+          "eastus",
+          "eastus2",
+          "centralindia",
+          "southeastasia"
+        ]
+      },
+      "lastReviewed": "2026-05-12",
+      "tags": [
+        "database",
+        "sql",
+        "paas"
+      ],
+      "aliases": [
+        "azure sql"
+      ]
+    },
+    {
+      "id": "azure-cosmos-db",
+      "name": "Azure Cosmos DB",
+      "category": "Databases",
+      "description": "Globally distributed, multi-model NoSQL database service.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Approved for high-scale, low-latency NoSQL workloads. Private endpoint required."
+        },
+        "external": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Approved for internet-facing workloads requiring global distribution."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": [
+          "westeurope",
+          "northeurope",
+          "eastus",
+          "eastus2",
+          "centralindia",
+          "southeastasia"
+        ]
+      },
+      "lastReviewed": "2026-03-15",
+      "tags": [
+        "database",
+        "nosql",
+        "cosmosdb"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "azure-database-for-postgresql",
+      "name": "Azure Database for PostgreSQL – Flexible Server",
+      "category": "Databases",
+      "description": "Fully managed PostgreSQL database with flexible compute and storage scaling.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard open-source relational database option for private workloads."
+        },
+        "external": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard open-source relational database option for internet-facing workloads."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": [
+          "westeurope",
+          "northeurope",
+          "eastus",
+          "eastus2",
+          "centralindia",
+          "southeastasia"
+        ]
+      },
+      "lastReviewed": "2026-03-15",
+      "tags": [
+        "database",
+        "postgresql",
+        "open-source"
+      ],
+      "aliases": [
+        "azure postgresql",
+        "azure postgres",
+        "postgresql flexible server"
+      ]
+    },
+    {
+      "id": "azure-sql-managed-instance",
+      "name": "Azure SQL Managed Instance",
+      "category": "Databases",
+      "description": "Near-full SQL Server compatibility as a managed PaaS instance, deployed inside a subnet.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Requires a dedicated delegated subnet; subject to a VM-equivalent patching SLA."
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Requires VNet injection, which is architecturally incompatible with external subscriptions."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": []
+      },
+      "lastReviewed": "2026-03-15",
+      "tags": [
+        "database",
+        "sql",
+        "managed-instance"
+      ],
+      "aliases": [
+        "sql managed instance",
+        "sql mi"
+      ]
+    },
+    {
+      "id": "azure-ai-foundry",
+      "name": "Azure AI Foundry",
+      "category": "AI + Machine Learning",
+      "description": "Platform for building, evaluating, and deploying generative AI applications and agents.",
+      "status": {
+        "vnet": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Denied by default; consume generative AI capabilities via the Enterprise AI Foundry Service instead."
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Denied by default; consume generative AI capabilities via the Enterprise AI Foundry Service instead."
+        }
+      },
+      "enterpriseServiceAlternative": {
+        "id": "enterprise-ai-foundry",
+        "name": "Enterprise AI Foundry Service",
+        "description": "Centrally managed AI Foundry offering. Consume via the enterprise service instead of deploying your own.",
+        "link": "https://intranet.example.com/enterprise-ai-foundry"
+      },
+      "allowedRegions": {
+        "vnet": [],
+        "external": []
+      },
+      "lastReviewed": "2026-06-10",
+      "tags": [
+        "ai",
+        "genai",
+        "machine-learning"
+      ],
+      "aliases": [
+        "ai foundry"
+      ]
+    },
+    {
+      "id": "azure-openai-service",
+      "name": "Azure OpenAI Service",
+      "category": "AI + Machine Learning",
+      "description": "Managed access to OpenAI foundation models (GPT, embeddings, DALL-E) via Azure.",
+      "status": {
+        "vnet": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Denied by default; consume via the Enterprise AI Foundry Service instead of deploying dedicated OpenAI resources."
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Denied by default; consume via the Enterprise AI Foundry Service instead of deploying dedicated OpenAI resources."
+        }
+      },
+      "enterpriseServiceAlternative": {
+        "id": "enterprise-ai-foundry",
+        "name": "Enterprise AI Foundry Service",
+        "description": "Centrally managed AI Foundry / Azure OpenAI offering with a pre-approved model catalog and chargeback.",
+        "link": "https://intranet.example.com/enterprise-ai-foundry"
+      },
+      "allowedRegions": {
+        "vnet": [],
+        "external": []
+      },
+      "lastReviewed": "2026-06-10",
+      "tags": [
+        "ai",
+        "openai",
+        "genai",
+        "llm"
+      ],
+      "aliases": [
+        "azure openai",
+        "openai service"
+      ]
+    },
+    {
+      "id": "azure-machine-learning",
+      "name": "Azure Machine Learning",
+      "category": "AI + Machine Learning",
+      "description": "End-to-end platform for training, tuning, and operationalizing traditional ML models.",
+      "status": {
+        "vnet": {
+          "state": "Denied",
+          "exceptionPossible": true,
+          "notes": "Denied by default in favor of the Enterprise AI Foundry Service. Approvable via Deviation Request for specialized MLOps pipelines not yet supported centrally.",
+          "exceptionLink": "https://intranet.example.com/exception-catalog"
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Not available to external subscriptions."
+        }
+      },
+      "enterpriseServiceAlternative": {
+        "id": "enterprise-ai-foundry",
+        "name": "Enterprise AI Foundry Service",
+        "description": "Centrally managed AI/ML platform covering both generative and traditional ML workloads.",
+        "link": "https://intranet.example.com/enterprise-ai-foundry"
+      },
+      "allowedRegions": {
+        "vnet": [],
+        "external": []
+      },
+      "lastReviewed": "2026-05-01",
+      "tags": [
+        "ai",
+        "machine-learning",
+        "mlops"
+      ],
+      "aliases": [
+        "azure ml",
+        "aml"
+      ]
+    },
+    {
+      "id": "azure-cognitive-search",
+      "name": "Azure AI Search",
+      "category": "AI + Machine Learning",
+      "description": "Managed search-as-a-service with vector, keyword, and hybrid retrieval capabilities.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Approved for private application search and retrieval-augmented-generation (RAG) scenarios. Private endpoint required."
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": true,
+          "notes": "Denied by default for external subscriptions pending a data-egress review requirement. Approvable case by case.",
+          "exceptionLink": "https://intranet.example.com/exception-catalog"
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": []
+      },
+      "lastReviewed": "2026-04-22",
+      "tags": [
+        "ai",
+        "search",
+        "vector-search",
+        "rag"
+      ],
+      "aliases": [
+        "azure ai search",
+        "cognitive search"
+      ]
+    },
+    {
+      "id": "azure-service-bus",
+      "name": "Azure Service Bus",
+      "category": "Integration",
+      "description": "Fully managed enterprise message broker with queues and publish/subscribe topics.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard asynchronous messaging service within the private network boundary."
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "External subscriptions cannot reach private Service Bus namespaces directly. Use the Cloud Integration Platform for internal-to-external messaging patterns."
+        }
+      },
+      "enterpriseServiceAlternative": {
+        "id": "cloud-integration-platform",
+        "name": "Cloud Integration Platform",
+        "description": "Centrally managed integration layer for internal-external and cross-subscription communication patterns.",
+        "link": "https://intranet.example.com/cloud-integration-platform"
+      },
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": []
+      },
+      "lastReviewed": "2026-03-08",
+      "tags": [
+        "messaging",
+        "integration",
+        "queues"
+      ],
+      "aliases": [
+        "service bus"
+      ]
+    },
+    {
+      "id": "azure-api-management",
+      "name": "Azure API Management",
+      "category": "Integration",
+      "description": "Full lifecycle API gateway, developer portal, and policy-enforcement platform.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Approved as the standard private API gateway pattern."
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": true,
+          "notes": "Denied by default; the Cloud Integration Platform provides the standard external API gateway. Deviation approvable for specialized public API products.",
+          "exceptionLink": "https://intranet.example.com/exception-catalog"
+        }
+      },
+      "enterpriseServiceAlternative": {
+        "id": "cloud-integration-platform",
+        "name": "Cloud Integration Platform",
+        "description": "Provides the standard managed API gateway for external-facing and cross-boundary APIs.",
+        "link": "https://intranet.example.com/cloud-integration-platform"
+      },
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": []
+      },
+      "lastReviewed": "2026-04-02",
+      "tags": [
+        "api",
+        "gateway",
+        "integration"
+      ],
+      "aliases": [
+        "apim"
+      ]
+    },
+    {
+      "id": "azure-logic-apps",
+      "name": "Azure Logic Apps",
+      "category": "Integration",
+      "description": "Low-code workflow orchestration and connector-based integration service.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Approved for private workflow automation and system-to-system orchestration."
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": true,
+          "notes": "Prefer the Cloud Integration Platform for external-facing orchestration. Deviation approvable for low-complexity, internal-only-triggered external workflows.",
+          "exceptionLink": "https://intranet.example.com/exception-catalog"
+        }
+      },
+      "enterpriseServiceAlternative": {
+        "id": "cloud-integration-platform",
+        "name": "Cloud Integration Platform",
+        "description": "Standard orchestration layer for workflows that cross the internal-external boundary.",
+        "link": "https://intranet.example.com/cloud-integration-platform"
+      },
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": []
+      },
+      "lastReviewed": "2026-03-08",
+      "tags": [
+        "workflow",
+        "integration",
+        "low-code"
+      ],
+      "aliases": [
+        "logic apps"
+      ]
+    },
+    {
+      "id": "azure-key-vault",
+      "name": "Azure Key Vault",
+      "category": "Security",
+      "description": "Managed service for secrets, keys, and certificates.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Mandatory for all applications storing secrets, keys, or certificates. Private endpoint required."
+        },
+        "external": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Mandatory for all applications storing secrets, keys, or certificates."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": [
+          "westeurope",
+          "northeurope",
+          "eastus",
+          "eastus2",
+          "centralindia",
+          "southeastasia"
+        ]
+      },
+      "lastReviewed": "2026-05-12",
+      "tags": [
+        "security",
+        "secrets",
+        "certificates"
+      ],
+      "aliases": [
+        "key vault"
+      ]
+    },
+    {
+      "id": "azure-bastion",
+      "name": "Azure Bastion",
+      "category": "Security",
+      "description": "Fully managed PaaS service providing secure RDP/SSH connectivity without public IPs on VMs.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard secure-access pattern for jump access to private VMs."
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Not applicable; external subscriptions have no private network to jump into."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": []
+      },
+      "lastReviewed": "2026-02-14",
+      "tags": [
+        "security",
+        "remote-access",
+        "bastion"
+      ],
+      "aliases": []
+    },
+    {
+      "id": "microsoft-defender-for-cloud",
+      "name": "Microsoft Defender for Cloud",
+      "category": "Security",
+      "description": "Cloud-native application protection platform (CNAPP) covering posture management and workload protection.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Enabled centrally at the management-group level via Azure Policy. No subscription action required."
+        },
+        "external": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Enabled centrally at the management-group level via Azure Policy. No subscription action required."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": [
+          "westeurope",
+          "northeurope",
+          "eastus",
+          "eastus2",
+          "centralindia",
+          "southeastasia"
+        ]
+      },
+      "lastReviewed": "2026-06-01",
+      "tags": [
+        "security",
+        "posture-management",
+        "cnapp"
+      ],
+      "aliases": [
+        "defender for cloud",
+        "ms defender for cloud"
+      ]
+    },
+    {
+      "id": "azure-devops",
+      "name": "Azure DevOps",
+      "category": "DevOps",
+      "description": "Suite of services for CI/CD pipelines, repos, boards, and test plans.",
+      "status": {
+        "vnet": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard CI/CD platform. Microsoft-hosted or self-hosted agents both permitted subject to the runner policy."
+        },
+        "external": {
+          "state": "Allowed",
+          "exceptionPossible": false,
+          "notes": "Standard CI/CD platform for teams owning external-subscription workloads."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [
+          "westeurope",
+          "northeurope",
+          "germanywestcentral",
+          "uksouth"
+        ],
+        "external": [
+          "westeurope",
+          "northeurope",
+          "eastus",
+          "eastus2",
+          "centralindia",
+          "southeastasia"
+        ]
+      },
+      "lastReviewed": "2026-04-02",
+      "tags": [
+        "devops",
+        "cicd",
+        "pipelines"
+      ],
+      "aliases": [
+        "ado",
+        "azure devops pipelines"
+      ]
+    },
+    {
+      "id": "github-actions-self-hosted-runners",
+      "name": "Self-hosted GitHub Actions Runners",
+      "category": "DevOps",
+      "description": "Self-managed VM or container-based runners for executing GitHub Actions workflows.",
+      "status": {
+        "vnet": {
+          "state": "Denied",
+          "exceptionPossible": true,
+          "notes": "Denied by default due to secrets-exposure risk on shared infrastructure. Approvable via Deviation Request with a mandatory runner-hardening baseline.",
+          "exceptionLink": "https://intranet.example.com/exception-catalog"
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Not permitted. Use GitHub-hosted runners, or the private-subscription pattern where separately approved."
+        }
+      },
+      "enterpriseServiceAlternative": null,
+      "allowedRegions": {
+        "vnet": [],
+        "external": []
+      },
+      "lastReviewed": "2026-01-18",
+      "tags": [
+        "devops",
+        "cicd",
+        "github-actions"
+      ],
+      "aliases": [
+        "self-hosted github actions runner",
+        "self-hosted runner"
+      ]
+    },
+    {
+      "id": "azure-synapse-analytics",
+      "name": "Azure Synapse Analytics",
+      "category": "Databases",
+      "description": "Integrated analytics platform combining data warehousing, big-data processing, and pipelines.",
+      "status": {
+        "vnet": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Superseded by the Enterprise Data Platform; use the central offering for enterprise analytics workloads."
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Not available to external subscriptions."
+        }
+      },
+      "enterpriseServiceAlternative": {
+        "id": "enterprise-data-platform",
+        "name": "Enterprise Data Platform",
+        "description": "Central analytics and data-integration platform replacing individually deployed Synapse workspaces.",
+        "link": "https://intranet.example.com/enterprise-data-platform"
+      },
+      "allowedRegions": {
+        "vnet": [],
+        "external": []
+      },
+      "lastReviewed": "2026-05-01",
+      "tags": [
+        "analytics",
+        "data-warehouse",
+        "big-data"
+      ],
+      "aliases": [
+        "synapse",
+        "synapse analytics"
+      ]
+    },
+    {
+      "id": "azure-data-factory",
+      "name": "Azure Data Factory",
+      "category": "Databases",
+      "description": "Managed data-integration and ETL/ELT pipeline orchestration service.",
+      "status": {
+        "vnet": {
+          "state": "Denied",
+          "exceptionPossible": true,
+          "notes": "Denied by default in favor of the Enterprise Data Platform. Approvable via Deviation Request for isolated point-to-point integration needs not covered centrally.",
+          "exceptionLink": "https://intranet.example.com/exception-catalog"
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Not available to external subscriptions."
+        }
+      },
+      "enterpriseServiceAlternative": {
+        "id": "enterprise-data-platform",
+        "name": "Enterprise Data Platform",
+        "description": "Central analytics and data-integration platform replacing individually deployed Data Factory instances.",
+        "link": "https://intranet.example.com/enterprise-data-platform"
+      },
+      "allowedRegions": {
+        "vnet": [],
+        "external": []
+      },
+      "lastReviewed": "2026-05-01",
+      "tags": [
+        "etl",
+        "data-integration",
+        "pipelines"
+      ],
+      "aliases": [
+        "adf",
+        "data factory"
+      ]
+    },
+    {
+      "id": "azure-devtest-labs",
+      "name": "Azure DevTest Labs",
+      "category": "DevOps",
+      "description": "Self-service sandbox environments for development and testing with cost-control policies.",
+      "status": {
+        "vnet": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Superseded by the Lab-as-a-Service enterprise offering."
+        },
+        "external": {
+          "state": "Denied",
+          "exceptionPossible": false,
+          "notes": "Superseded by the Lab-as-a-Service enterprise offering."
+        }
+      },
+      "enterpriseServiceAlternative": {
+        "id": "lab-as-a-service",
+        "name": "Lab-as-a-Service",
+        "description": "Centrally managed sandbox and training-lab environments with automatic expiry and cost caps.",
+        "link": "https://intranet.example.com/lab-as-a-service"
+      },
+      "allowedRegions": {
+        "vnet": [],
+        "external": []
+      },
+      "lastReviewed": "2026-02-14",
+      "tags": [
+        "devops",
+        "sandbox",
+        "training"
+      ],
+      "aliases": [
+        "devtest labs"
+      ]
+    }
   ]
 }

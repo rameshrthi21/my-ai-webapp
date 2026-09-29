@@ -3,7 +3,7 @@
 
   const STORAGE = {
     rules: "avr.rules.v1",
-    csr: "avr.csr.v1",
+    csr: "avr.csr.v2",
     history: "avr.history.v1",
     aiEnabled: "avr.ai.enabled",
     aiKey: "avr.ai.key",
@@ -16,20 +16,44 @@
     pass: { label: "Passed", order: 3 },
   };
 
+  // Badge derivation mirrors the reference Cloud Service Roadmap site: state=Allowed -> allowed;
+  // state=In-Evaluation -> evaluation; state=Denied + an enterprise alternative exists -> enterprise
+  // (takes priority over exceptionPossible, since "use the central service" beats "ask for an
+  // exception"); state=Denied + exceptionPossible -> exception; state=Denied otherwise -> denied.
+  const CSR_BADGES = {
+    allowed: { label: "Allowed", icon: "✓", pillClass: "pass" },
+    denied: { label: "Denied", icon: "✕", pillClass: "violation" },
+    exception: { label: "Exception possible", icon: "⚠", pillClass: "exception" },
+    enterprise: { label: "Enterprise service available", icon: "⬢", pillClass: "enterprise" },
+    evaluation: { label: "In evaluation", icon: "⏳", pillClass: "evaluation" },
+  };
+
   const CSR_GROUPS = [
-    { statuses: ["retired"], label: "Retired — prohibited" },
-    { statuses: ["sunset"], label: "Sunset — migrate away" },
-    { statuses: ["emerging"], label: "Emerging — needs approval" },
-    { statuses: ["contain"], label: "Contain — existing use only" },
-    { statuses: ["current", "strategic"], label: "Current & Strategic — approved" },
+    { keys: ["denied"], label: "Denied" },
+    { keys: ["exception"], label: "Exception possible" },
+    { keys: ["enterprise"], label: "Enterprise service available instead" },
+    { keys: ["evaluation"], label: "In evaluation" },
+    { keys: ["allowed"], label: "Allowed" },
   ];
 
-  function csrPillClass(status) {
-    if (status === "retired") return "violation";
-    if (status === "sunset") return "sunset";
-    if (status === "emerging") return "gap";
-    if (status === "contain") return "exception";
-    return "pass"; // current, strategic
+  function csrBadgeKey(entry, subscriptionType) {
+    const status = entry.status[subscriptionType];
+    if (!status) return "evaluation";
+    if (status.state === "Allowed") return "allowed";
+    if (status.state === "In-Evaluation") return "evaluation";
+    if (entry.enterpriseServiceAlternative) return "enterprise";
+    if (status.exceptionPossible) return "exception";
+    return "denied";
+  }
+
+  function subscriptionTypeName(id) {
+    const t = (state.csrPack.subscriptionTypes || []).find((x) => x.id === id);
+    return t ? t.name : id;
+  }
+
+  function regionName(id) {
+    const r = (state.csrPack.regions || []).find((x) => x.id === id);
+    return r ? r.name : id;
   }
 
   const $ = (sel, root = document) => root.querySelector(sel);
@@ -171,6 +195,17 @@
     return matches;
   }
 
+  function matchRegions(text) {
+    const lower = text.toLowerCase();
+    const matches = [];
+    for (const region of state.csrPack.regions || []) {
+      if (lower.includes(region.name.toLowerCase()) || lower.includes(region.id.toLowerCase())) {
+        matches.push(region);
+      }
+    }
+    return matches;
+  }
+
   function computeScores(findings) {
     const byPillar = {};
     for (const f of findings) {
@@ -200,13 +235,15 @@
       return;
     }
     const workloadType = $("#workload-type").value;
+    const subscriptionType = $("#subscription-type").value;
     const findings = evaluate(text);
     const scores = computeScores(findings);
     const csrMatches = matchCsr(text);
-    const meta = { workloadType, timestamp: new Date().toISOString(), textLength: text.length };
+    const regionMatches = matchRegions(text);
+    const meta = { workloadType, subscriptionType, timestamp: new Date().toISOString(), textLength: text.length };
 
-    state.lastReview = { text, findings, scores, csrMatches, meta };
-    renderResults(findings, scores, meta, csrMatches);
+    state.lastReview = { text, findings, scores, csrMatches, regionMatches, meta };
+    renderResults(findings, scores, meta, csrMatches, regionMatches);
     $("#review-status").textContent = "Review complete.";
     $("#btn-export").hidden = false;
 
@@ -214,9 +251,10 @@
       id: `r_${Date.now()}`,
       ts: meta.timestamp,
       workloadType,
+      subscriptionType,
       overall: scores.overall,
       counts: countByStatus(findings),
-      csrFlagCount: csrMatches.filter((m) => m.entry.status === "retired" || m.entry.status === "sunset").length,
+      csrFlagCount: csrMatches.filter((m) => csrBadgeKey(m.entry, subscriptionType) === "denied").length,
       snippet: text.slice(0, 160),
       text,
     });
@@ -236,7 +274,7 @@
     return "var(--violation)";
   }
 
-  function renderResults(findings, scores, meta, csrMatches) {
+  function renderResults(findings, scores, meta, csrMatches, regionMatches) {
     $("#results-empty").hidden = true;
     const content = $("#results-content");
     content.hidden = false;
@@ -269,7 +307,7 @@
       content.appendChild(wl);
     }
 
-    renderCsrSection(content, csrMatches || []);
+    renderCsrSection(content, csrMatches || [], meta.subscriptionType, regionMatches || []);
 
     const groups = ["violation", "exception", "gap", "pass"];
     for (const status of groups) {
@@ -316,38 +354,30 @@
     return card;
   }
 
-  function csrStatusName(statusId) {
-    const s = state.csrPack.statuses.find((x) => x.id === statusId);
-    return s ? s.name : statusId;
-  }
-
-  function renderCsrSection(content, csrMatches) {
+  function renderCsrSection(content, csrMatches, subscriptionType, regionMatches) {
     const section = document.createElement("div");
     section.className = "finding-group";
     const h3 = document.createElement("h3");
     h3.innerHTML = `Cloud Service Roadmap <span class="count-badge">${csrMatches.length}</span>`;
     section.appendChild(h3);
 
+    const subLine = document.createElement("p");
+    subLine.className = "finding-evidence";
+    subLine.textContent = `Checked against: ${subscriptionTypeName(subscriptionType)}` +
+      (regionMatches.length ? ` · Region(s) mentioned: ${regionMatches.map((r) => r.name).join(", ")}` : "");
+    section.appendChild(subLine);
+
     if (!csrMatches.length) {
       const note = document.createElement("p");
       note.className = "finding-evidence";
-      note.textContent = "No technologies from the master CSR were recognized in this text. This only checks entries tracked in the Cloud Roadmap tab — an unmatched mention isn't thereby approved, it just isn't tracked yet.";
+      note.textContent = "No services from the master Cloud Service Roadmap were recognized in this text. This only checks entries tracked in the Cloud Roadmap tab — an unmatched mention isn't thereby approved, it just isn't tracked yet.";
       section.appendChild(note);
       content.appendChild(section);
       return;
     }
 
-    const flagCount = csrMatches.filter((m) => m.entry.status === "retired" || m.entry.status === "sunset").length;
-    const trialCount = csrMatches.filter((m) => m.entry.status === "emerging").length;
-    const summaryLine = document.createElement("p");
-    summaryLine.className = "finding-evidence";
-    summaryLine.textContent = `${csrMatches.length} technolog${csrMatches.length === 1 ? "y" : "ies"} recognized` +
-      (flagCount ? ` — ${flagCount} flagged for migration/removal` : "") +
-      (trialCount ? `, ${trialCount} in trial (needs approval)` : "") + ".";
-    section.appendChild(summaryLine);
-
     for (const group of CSR_GROUPS) {
-      const items = csrMatches.filter((m) => group.statuses.includes(m.entry.status));
+      const items = csrMatches.filter((m) => group.keys.includes(csrBadgeKey(m.entry, subscriptionType)));
       if (!items.length) continue;
       const sub = document.createElement("div");
       sub.style.margin = "10px 0";
@@ -358,26 +388,54 @@
       subHead.style.margin = "0 0 6px";
       subHead.textContent = `${group.label} (${items.length})`;
       sub.appendChild(subHead);
-      items.forEach((m) => sub.appendChild(csrMatchCard(m)));
+      items.forEach((m) => sub.appendChild(csrMatchCard(m, subscriptionType, regionMatches)));
       section.appendChild(sub);
     }
 
     content.appendChild(section);
   }
 
-  function csrMatchCard(match) {
+  function csrMatchCard(match, subscriptionType, regionMatches) {
     const { entry, matchedTerm } = match;
+    const status = entry.status[subscriptionType] || {};
+    const badgeKey = csrBadgeKey(entry, subscriptionType);
+    const badge = CSR_BADGES[badgeKey];
+    const allowedRegions = (entry.allowedRegions && entry.allowedRegions[subscriptionType]) || [];
+
+    let regionNote = "";
+    if (badgeKey === "allowed" || badgeKey === "exception" || badgeKey === "enterprise") {
+      if (!allowedRegions.length) {
+        regionNote = `<p class="finding-evidence">No regions pre-approved for ${escapeHtml(subscriptionTypeName(subscriptionType))} — case by case only.</p>`;
+      } else if (regionMatches.length) {
+        const outside = regionMatches.filter((r) => !allowedRegions.includes(r.id));
+        if (outside.length) {
+          regionNote = `<p class="finding-evidence">⚠ Mentioned region${outside.length === 1 ? "" : "s"} not pre-approved for this status: ${escapeHtml(outside.map((r) => r.name).join(", "))}. Approved regions: ${escapeHtml(allowedRegions.map(regionName).join(", "))}.</p>`;
+        }
+      }
+    }
+
+    const exceptionLine =
+      status.exceptionPossible && status.exceptionLink
+        ? `<p class="finding-rec">Exception possible: request via <a href="${escapeHtml(status.exceptionLink)}" target="_blank" rel="noopener">the Exception Catalog</a>.</p>`
+        : "";
+
+    const enterpriseLine = entry.enterpriseServiceAlternative
+      ? `<p class="finding-rec">Use the central enterprise service instead: <strong>${escapeHtml(entry.enterpriseServiceAlternative.name)}</strong> — ${escapeHtml(entry.enterpriseServiceAlternative.description || "")}${entry.enterpriseServiceAlternative.link ? ` (<a href="${escapeHtml(entry.enterpriseServiceAlternative.link)}" target="_blank" rel="noopener">details</a>)` : ""}</p>`
+      : "";
+
     const card = document.createElement("div");
-    card.className = `finding-card ${csrPillClass(entry.status)}`;
+    card.className = `finding-card ${badge.pillClass}`;
     card.innerHTML = `
       <div class="finding-head">
         <span class="rule-id">${escapeHtml(entry.id)}</span>
         <strong>${escapeHtml(entry.name)}</strong>
         <span class="pill pillar-pill">${escapeHtml(entry.category)}</span>
-        <span class="pill ${csrPillClass(entry.status)}">${escapeHtml(csrStatusName(entry.status))}</span>
+        <span class="pill ${badge.pillClass}">${badge.icon} ${escapeHtml(badge.label)}</span>
       </div>
-      ${entry.notes ? `<p class="finding-req">${escapeHtml(entry.notes)}</p>` : ""}
-      ${entry.replacement ? `<p class="finding-rec">Migrate to: ${escapeHtml(entry.replacement)}${entry.migrateBy ? ` (by ${escapeHtml(entry.migrateBy)})` : ""}</p>` : ""}
+      ${status.notes ? `<p class="finding-req">${escapeHtml(status.notes)}</p>` : ""}
+      ${exceptionLine}
+      ${enterpriseLine}
+      ${regionNote}
       <p class="finding-evidence">Matched: "${escapeHtml(matchedTerm)}"</p>
     `;
     return card;
@@ -391,32 +449,36 @@
 
   function exportReport() {
     if (!state.lastReview) return;
-    const { findings, scores, meta, text, csrMatches } = state.lastReview;
+    const { findings, scores, meta, text, csrMatches, regionMatches } = state.lastReview;
     const lines = [];
     lines.push(`# Architecture Validation Report`);
     lines.push(``);
     lines.push(`Generated: ${meta.timestamp}`);
     if (meta.workloadType) lines.push(`Workload type: ${meta.workloadType}`);
+    if (meta.subscriptionType) lines.push(`Subscription type: ${subscriptionTypeName(meta.subscriptionType)}`);
     lines.push(`Overall score: ${scores.overall}/100`);
     lines.push(``);
     lines.push(`## Pillar scores`);
     scores.pillarScores.forEach((p) => lines.push(`- ${p.name}: ${p.score}% (${p.pass}/${p.total} rules passed)`));
     lines.push(``);
 
-    lines.push(`## Cloud Service Roadmap (${(csrMatches || []).length} technolog${(csrMatches || []).length === 1 ? "y" : "ies"} recognized)`);
+    lines.push(`## Cloud Service Roadmap (${(csrMatches || []).length} service${(csrMatches || []).length === 1 ? "" : "s"} recognized, checked against ${subscriptionTypeName(meta.subscriptionType)})`);
+    if (regionMatches && regionMatches.length) lines.push(`Region(s) mentioned: ${regionMatches.map((r) => r.name).join(", ")}`);
     if (!csrMatches || !csrMatches.length) {
-      lines.push(`_No technologies from the master CSR were recognized in this text._`);
+      lines.push(`_No services from the master Cloud Service Roadmap were recognized in this text._`);
     } else {
       for (const group of CSR_GROUPS) {
-        const items = csrMatches.filter((m) => group.statuses.includes(m.entry.status));
+        const items = csrMatches.filter((m) => group.keys.includes(csrBadgeKey(m.entry, meta.subscriptionType)));
         if (!items.length) continue;
         lines.push(``);
         lines.push(`### ${group.label}`);
         items.forEach((m) => {
+          const status = m.entry.status[meta.subscriptionType] || {};
           lines.push(``);
-          lines.push(`- **${m.entry.id} — ${m.entry.name}** (${m.entry.category}, ${csrStatusName(m.entry.status)})`);
-          if (m.entry.notes) lines.push(`  ${m.entry.notes}`);
-          if (m.entry.replacement) lines.push(`  Migrate to: ${m.entry.replacement}${m.entry.migrateBy ? ` (by ${m.entry.migrateBy})` : ""}`);
+          lines.push(`- **${m.entry.id} — ${m.entry.name}** (${m.entry.category})`);
+          if (status.notes) lines.push(`  ${status.notes}`);
+          if (status.exceptionPossible && status.exceptionLink) lines.push(`  Exception possible: ${status.exceptionLink}`);
+          if (m.entry.enterpriseServiceAlternative) lines.push(`  Enterprise alternative: ${m.entry.enterpriseServiceAlternative.name} — ${m.entry.enterpriseServiceAlternative.link || ""}`);
           lines.push(`  Matched: "${m.matchedTerm}"`);
         });
       }
@@ -500,12 +562,13 @@
         <span class="pill violation" title="Violations">${h.counts.violation}</span>
         <span class="pill exception" title="Exceptions">${h.counts.exception}</span>
         <span class="pill gap" title="Gaps">${h.counts.gap}</span>
-        ${h.csrFlagCount ? `<span class="pill sunset" title="Roadmap flags (retired/sunset)">⚠ ${h.csrFlagCount}</span>` : ""}
+        ${h.csrFlagCount ? `<span class="pill violation" title="Denied services">⚠ ${h.csrFlagCount}</span>` : ""}
         <button class="btn-ghost btn-reload" type="button">Reload</button>
       `;
       item.querySelector(".btn-reload").addEventListener("click", () => {
         $("#design-input").value = h.text;
         $("#workload-type").value = h.workloadType || "";
+        $("#subscription-type").value = h.subscriptionType || "vnet";
         document.querySelector('.tab[data-tab="review"]').click();
         runReview();
       });
@@ -731,6 +794,8 @@
         list.appendChild(heading);
         byCategory[category].forEach((entry) => list.appendChild(renderCsrItem(entry)));
       });
+    renderEnterpriseServices();
+    renderRegionsList();
   }
 
   function renderCsrItem(entry) {
@@ -739,11 +804,17 @@
     node.dataset.csrId = entry.id;
     $(".rule-id", node).textContent = entry.id;
     const statusPill = $(".status-pill", node);
-    statusPill.textContent = csrStatusName(entry.status);
-    statusPill.classList.add(csrPillClass(entry.status));
+    const vnetKey = csrBadgeKey(entry, "vnet");
+    const extKey = csrBadgeKey(entry, "external");
+    statusPill.innerHTML = `vNET: ${CSR_BADGES[vnetKey].icon} ${escapeHtml(CSR_BADGES[vnetKey].label)}`;
+    statusPill.classList.add(CSR_BADGES[vnetKey].pillClass);
+    const extPill = document.createElement("span");
+    extPill.className = `pill ${CSR_BADGES[extKey].pillClass}`;
+    extPill.textContent = `External: ${CSR_BADGES[extKey].icon} ${CSR_BADGES[extKey].label}`;
+    statusPill.after(extPill);
     $(".category-pill", node).textContent = entry.category;
     $(".csr-title", node).textContent = entry.name;
-    $(".csr-notes", node).textContent = entry.notes + (entry.replacement ? ` Migrate to: ${entry.replacement}${entry.migrateBy ? ` (by ${entry.migrateBy})` : ""}.` : "");
+    $(".csr-notes", node).textContent = entry.description || "";
     $(".csr-edit", node).addEventListener("click", () => openCsrEditor(entry));
     $(".csr-delete", node).addEventListener("click", () => deleteCsrEntry(entry.id));
     return node;
@@ -756,59 +827,89 @@
     renderCsrLibrary();
   }
 
+  function statusEditorBlock(subType, label, status) {
+    const s = { state: "In-Evaluation", exceptionPossible: false, notes: "", exceptionLink: "", ...(status || {}) };
+    return `
+      <fieldset style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-top:10px;">
+        <legend style="padding:0 6px;font-size:12.5px;font-weight:700;color:var(--text-muted);">${escapeHtml(label)}</legend>
+        <label class="field-label">State</label>
+        <select id="edit-csr-${subType}-state">
+          <option value="Allowed" ${s.state === "Allowed" ? "selected" : ""}>Allowed</option>
+          <option value="Denied" ${s.state === "Denied" ? "selected" : ""}>Denied</option>
+          <option value="In-Evaluation" ${s.state === "In-Evaluation" ? "selected" : ""}>In-Evaluation</option>
+        </select>
+        <label class="field-label">Notes</label>
+        <textarea id="edit-csr-${subType}-notes" rows="2">${escapeHtml(s.notes || "")}</textarea>
+        <label class="field-label"><input type="checkbox" id="edit-csr-${subType}-exception" ${s.exceptionPossible ? "checked" : ""} /> Exception possible (Denied only)</label>
+        <label class="field-label">Exception link (optional)</label>
+        <input type="text" id="edit-csr-${subType}-exceptionlink" value="${escapeHtml(s.exceptionLink || "")}" placeholder="https://..." />
+        <label class="field-label">Allowed regions (comma-separated region IDs)</label>
+        <input type="text" id="edit-csr-${subType}-regions" list="csr-region-list" placeholder="e.g. westeurope, eastus" />
+      </fieldset>
+    `;
+  }
+
   function openCsrEditor(existing) {
     closeCsrEditor();
     const isNew = !existing;
     const editor = document.createElement("div");
     editor.className = "rule-editor";
     editor.id = "active-csr-editor";
-    const statusOptions = state.csrPack.statuses
-      .map((s) => `<option value="${s.id}" ${existing && existing.status === s.id ? "selected" : ""}>${s.name}</option>`)
-      .join("");
     const categoryList = [...new Set(state.csrPack.entries.map((e) => e.category))].sort();
+    const enterpriseOptions = (state.csrPack.enterpriseServices || [])
+      .map((s) => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`)
+      .join("");
 
     const e = existing || {
       id: "",
       name: "",
       category: "",
-      status: state.csrPack.statuses[0].id,
+      description: "",
       aliases: [],
-      replacement: "",
-      migrateBy: "",
-      notes: "",
+      tags: [],
+      lastReviewed: "",
+      status: { vnet: {}, external: {} },
+      allowedRegions: { vnet: [], external: [] },
+      enterpriseServiceAlternative: null,
     };
 
     editor.innerHTML = `
-      <h3 style="margin-top:0">${isNew ? "Add technology" : `Edit ${escapeHtml(e.id)}`}</h3>
+      <h3 style="margin-top:0">${isNew ? "Add service" : `Edit ${escapeHtml(e.id)}`}</h3>
+      <datalist id="csr-region-list">${(state.csrPack.regions || []).map((r) => `<option value="${escapeHtml(r.id)}">${escapeHtml(r.name)}</option>`).join("")}</datalist>
       <div class="rule-editor-grid">
         <div>
-          <label class="field-label">Entry ID</label>
-          <input type="text" id="edit-csr-id" value="${escapeHtml(e.id)}" ${isNew ? "" : "readonly"} placeholder="e.g. CSR-045" />
+          <label class="field-label">Entry ID (slug)</label>
+          <input type="text" id="edit-csr-id" value="${escapeHtml(e.id)}" ${isNew ? "" : "readonly"} placeholder="e.g. azure-example-service" />
         </div>
         <div>
-          <label class="field-label">Status</label>
-          <select id="edit-csr-status">${statusOptions}</select>
+          <label class="field-label">Category</label>
+          <input type="text" id="edit-csr-category" value="${escapeHtml(e.category)}" list="csr-category-list" placeholder="e.g. Compute" />
+          <datalist id="csr-category-list">${categoryList.map((c) => `<option value="${escapeHtml(c)}">`).join("")}</datalist>
         </div>
       </div>
-      <label class="field-label">Technology name</label>
+      <label class="field-label">Service name</label>
       <input type="text" id="edit-csr-name" value="${escapeHtml(e.name)}" />
-      <label class="field-label">Category</label>
-      <input type="text" id="edit-csr-category" value="${escapeHtml(e.category)}" list="csr-category-list" placeholder="e.g. Compute" />
-      <datalist id="csr-category-list">${categoryList.map((c) => `<option value="${escapeHtml(c)}">`).join("")}</datalist>
+      <label class="field-label">Description</label>
+      <textarea id="edit-csr-description" rows="2">${escapeHtml(e.description || "")}</textarea>
       <label class="field-label">Aliases (comma-separated — alternate names matched during review)</label>
       <input type="text" id="edit-csr-aliases" value="${escapeHtml((e.aliases || []).join(", "))}" />
-      <div class="rule-editor-grid">
-        <div>
-          <label class="field-label">Migrate to (replacement, if sunset/retired)</label>
-          <input type="text" id="edit-csr-replacement" value="${escapeHtml(e.replacement || "")}" />
-        </div>
-        <div>
-          <label class="field-label">Migrate by (optional, free text)</label>
-          <input type="text" id="edit-csr-migrateby" value="${escapeHtml(e.migrateBy || "")}" placeholder="e.g. Q4 2026" />
-        </div>
-      </div>
-      <label class="field-label">Notes / rationale</label>
-      <textarea id="edit-csr-notes" rows="2">${escapeHtml(e.notes || "")}</textarea>
+      <label class="field-label">Tags (comma-separated)</label>
+      <input type="text" id="edit-csr-tags" value="${escapeHtml((e.tags || []).join(", "))}" />
+      <label class="field-label">Last reviewed</label>
+      <input type="text" id="edit-csr-lastreviewed" value="${escapeHtml(e.lastReviewed || "")}" placeholder="YYYY-MM-DD" />
+
+      ${statusEditorBlock("vnet", "vNET / Private status", e.status.vnet)}
+      ${statusEditorBlock("external", "External / Public status", e.status.external)}
+
+      <fieldset style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-top:10px;">
+        <legend style="padding:0 6px;font-size:12.5px;font-weight:700;color:var(--text-muted);">Enterprise service alternative (optional)</legend>
+        <label class="field-label">If denied, point to a centrally managed alternative</label>
+        <select id="edit-csr-enterprise-alt">
+          <option value="">— None —</option>
+          ${enterpriseOptions}
+        </select>
+      </fieldset>
+
       <div class="actions-row">
         <button id="edit-csr-save" class="btn-primary" type="button">Save entry</button>
         <button id="edit-csr-cancel" class="btn-ghost" type="button">Cancel</button>
@@ -816,6 +917,9 @@
     `;
 
     $("#csr-list").prepend(editor);
+    $(`#edit-csr-vnet-regions`, editor).value = ((e.allowedRegions && e.allowedRegions.vnet) || []).join(", ");
+    $(`#edit-csr-external-regions`, editor).value = ((e.allowedRegions && e.allowedRegions.external) || []).join(", ");
+    $("#edit-csr-enterprise-alt", editor).value = (e.enterpriseServiceAlternative && e.enterpriseServiceAlternative.id) || "";
     editor.scrollIntoView({ behavior: "smooth", block: "center" });
 
     $("#edit-csr-cancel", editor).addEventListener("click", closeCsrEditor);
@@ -823,7 +927,7 @@
       const id = $("#edit-csr-id", editor).value.trim();
       const name = $("#edit-csr-name", editor).value.trim();
       if (!id || !name) {
-        alert("Entry ID and technology name are required.");
+        alert("Entry ID and service name are required.");
         return;
       }
       if (isNew && state.csrPack.entries.some((x) => x.id === id)) {
@@ -831,15 +935,30 @@
         return;
       }
       const split = (v) => v.split(",").map((s) => s.trim()).filter(Boolean);
+      const readStatus = (subType) => ({
+        state: $(`#edit-csr-${subType}-state`, editor).value,
+        notes: $(`#edit-csr-${subType}-notes`, editor).value.trim(),
+        exceptionPossible: $(`#edit-csr-${subType}-exception`, editor).checked,
+        exceptionLink: $(`#edit-csr-${subType}-exceptionlink`, editor).value.trim() || undefined,
+      });
+      const altId = $("#edit-csr-enterprise-alt", editor).value;
+      const altService = altId ? (state.csrPack.enterpriseServices || []).find((s) => s.id === altId) : null;
       const updated = {
         id,
         name,
         category: $("#edit-csr-category", editor).value.trim() || "Uncategorized",
-        status: $("#edit-csr-status", editor).value,
+        description: $("#edit-csr-description", editor).value.trim(),
         aliases: split($("#edit-csr-aliases", editor).value),
-        replacement: $("#edit-csr-replacement", editor).value.trim() || null,
-        migrateBy: $("#edit-csr-migrateby", editor).value.trim() || null,
-        notes: $("#edit-csr-notes", editor).value.trim(),
+        tags: split($("#edit-csr-tags", editor).value),
+        lastReviewed: $("#edit-csr-lastreviewed", editor).value.trim() || null,
+        status: { vnet: readStatus("vnet"), external: readStatus("external") },
+        allowedRegions: {
+          vnet: split($("#edit-csr-vnet-regions", editor).value),
+          external: split($("#edit-csr-external-regions", editor).value),
+        },
+        enterpriseServiceAlternative: altService
+          ? { id: altService.id, name: altService.name, description: altService.description, link: altService.link }
+          : null,
       };
       if (isNew) {
         state.csrPack.entries.push(updated);
@@ -867,7 +986,7 @@
     reader.onload = () => {
       try {
         const parsed = JSON.parse(reader.result);
-        if (!parsed.entries || !parsed.statuses) throw new Error("File must contain 'statuses' and 'entries'.");
+        if (!parsed.entries) throw new Error("File must contain an 'entries' array.");
         if (!confirm(`Import will replace your current Cloud Service Roadmap (${state.csrPack.entries.length} entries) with "${parsed.name || "imported roadmap"}" (${parsed.entries.length} entries). Continue?`)) return;
         state.csrPack = parsed;
         persistCsrPack();
@@ -882,6 +1001,96 @@
   async function resetCsrToDefault() {
     if (!confirm("Reset the Cloud Service Roadmap to the built-in defaults? Your custom entries will be lost unless exported first.")) return;
     state.csrPack = await loadDefaultCsrPack();
+    persistCsrPack();
+    renderCsrLibrary();
+  }
+
+  // ---------- Enterprise service alternatives & regions (reference sub-sections) ----------
+
+  function renderEnterpriseServices() {
+    const host = $("#enterprise-services-list");
+    if (!host) return;
+    host.innerHTML = "";
+    (state.csrPack.enterpriseServices || []).forEach((s) => {
+      const card = document.createElement("div");
+      card.className = "rule-item";
+      card.innerHTML = `
+        <header class="rule-item-head">
+          <span class="rule-id">${escapeHtml(s.id)}</span>
+          <span class="pill pillar-pill">${escapeHtml(s.category || "")}</span>
+          <button class="btn-icon ent-delete" type="button" title="Delete">🗑️</button>
+        </header>
+        <h3 class="rule-title">${escapeHtml(s.name)}</h3>
+        <p class="rule-requirement">${escapeHtml(s.description || "")}${s.owner ? ` Owner: ${escapeHtml(s.owner)}.` : ""}${s.link ? ` <a href="${escapeHtml(s.link)}" target="_blank" rel="noopener">Details</a>` : ""}</p>
+      `;
+      $(".ent-delete", card).addEventListener("click", () => {
+        if (!confirm(`Delete enterprise service "${s.name}"? Entries referencing it will keep a stale reference until re-saved.`)) return;
+        state.csrPack.enterpriseServices = state.csrPack.enterpriseServices.filter((x) => x.id !== s.id);
+        persistCsrPack();
+        renderCsrLibrary();
+      });
+      host.appendChild(card);
+    });
+  }
+
+  function openEnterpriseEditor() {
+    const id = prompt("Enterprise service ID (slug, e.g. enterprise-ai-foundry):");
+    if (!id) return;
+    if ((state.csrPack.enterpriseServices || []).some((s) => s.id === id)) {
+      alert("An enterprise service with this ID already exists.");
+      return;
+    }
+    const name = prompt("Name:") || id;
+    const category = prompt("Category:") || "";
+    const description = prompt("Description:") || "";
+    const owner = prompt("Owner (team name):") || "";
+    const link = prompt("Link (optional):") || "";
+    state.csrPack.enterpriseServices = state.csrPack.enterpriseServices || [];
+    state.csrPack.enterpriseServices.push({ id, name, category, description, owner, link });
+    persistCsrPack();
+    renderCsrLibrary();
+  }
+
+  function renderRegionsList() {
+    const host = $("#regions-list");
+    if (!host) return;
+    host.innerHTML = "";
+    (state.csrPack.regions || []).forEach((r) => {
+      const card = document.createElement("div");
+      card.className = "rule-item";
+      card.innerHTML = `
+        <header class="rule-item-head">
+          <span class="rule-id">${escapeHtml(r.id)}</span>
+          <span class="pill ${r.vnetAvailable ? "pass" : "violation"}">vNET: ${r.vnetAvailable ? "✓" : "✕"}</span>
+          <span class="pill ${r.externalAvailable ? "pass" : "violation"}">External: ${r.externalAvailable ? "✓" : "✕"}</span>
+          <button class="btn-icon region-delete" type="button" title="Delete">🗑️</button>
+        </header>
+        <h3 class="rule-title">${escapeHtml(r.name)}</h3>
+        <p class="rule-requirement">${escapeHtml(r.notes || "")}</p>
+      `;
+      $(".region-delete", card).addEventListener("click", () => {
+        if (!confirm(`Delete region "${r.name}"?`)) return;
+        state.csrPack.regions = state.csrPack.regions.filter((x) => x.id !== r.id);
+        persistCsrPack();
+        renderCsrLibrary();
+      });
+      host.appendChild(card);
+    });
+  }
+
+  function openRegionEditor() {
+    const id = prompt("Region ID (Azure region slug, e.g. eastus2):");
+    if (!id) return;
+    if ((state.csrPack.regions || []).some((r) => r.id === id)) {
+      alert("A region with this ID already exists.");
+      return;
+    }
+    const name = prompt("Region display name:") || id;
+    const vnetAvailable = confirm("Available for vNET / Private subscriptions? OK = yes, Cancel = no");
+    const externalAvailable = confirm("Available for External / Public subscriptions? OK = yes, Cancel = no");
+    const notes = prompt("Notes (optional):") || "";
+    state.csrPack.regions = state.csrPack.regions || [];
+    state.csrPack.regions.push({ id, name, vnetAvailable, externalAvailable, notes });
     persistCsrPack();
     renderCsrLibrary();
   }
@@ -1104,6 +1313,8 @@ Cost: the instance runs 24/7 at a fixed size with no autoscaling, and no budget 
       e.target.value = "";
     });
     $("#btn-reset-csr").addEventListener("click", resetCsrToDefault);
+    $("#btn-add-enterprise-service").addEventListener("click", openEnterpriseEditor);
+    $("#btn-add-region").addEventListener("click", openRegionEditor);
 
     $("#btn-download-standalone").addEventListener("click", (e) => downloadStandaloneCopy(e.currentTarget));
     $("#btn-download-standalone-top").addEventListener("click", (e) => downloadStandaloneCopy(e.currentTarget));

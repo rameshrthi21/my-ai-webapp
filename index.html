@@ -43,15 +43,26 @@
             <button id="btn-sample" class="btn-ghost" type="button">Load flawed sample</button>
           </div>
 
-          <label class="field-label" for="workload-type">Workload type</label>
-          <select id="workload-type">
-            <option value="">General / not specified</option>
-            <option value="web">Web application</option>
-            <option value="api">Microservices / API platform</option>
-            <option value="data">Data platform / analytics</option>
-            <option value="batch">Batch / ETL</option>
-            <option value="ml">AI / ML workload</option>
-          </select>
+          <div class="rule-editor-grid">
+            <div>
+              <label class="field-label" for="workload-type">Workload type</label>
+              <select id="workload-type">
+                <option value="">General / not specified</option>
+                <option value="web">Web application</option>
+                <option value="api">Microservices / API platform</option>
+                <option value="data">Data platform / analytics</option>
+                <option value="batch">Batch / ETL</option>
+                <option value="ml">AI / ML workload</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" for="subscription-type">Subscription type (for Cloud Service Roadmap check)</label>
+              <select id="subscription-type">
+                <option value="vnet">vNET / Private</option>
+                <option value="external">External / Public</option>
+              </select>
+            </div>
+          </div>
 
           <div class="import-row">
             <button id="btn-import-diagram" class="btn-ghost" type="button">📎 Import diagram (.pptx / .vsdx)</button>
@@ -113,7 +124,7 @@
         <div class="panel-head">
           <h2>Cloud Service Roadmap</h2>
           <div class="btn-row">
-            <button id="btn-add-csr" class="btn-primary" type="button">Add technology</button>
+            <button id="btn-add-csr" class="btn-primary" type="button">Add service</button>
             <button id="btn-import-csr" class="btn-ghost" type="button">Import JSON</button>
             <button id="btn-export-csr" class="btn-ghost" type="button">Export JSON</button>
             <button id="btn-reset-csr" class="btn-danger-ghost" type="button">Reset to defaults</button>
@@ -121,16 +132,42 @@
           </div>
         </div>
         <p class="panel-desc">
-          This is your master Cloud Service Roadmap (CSR) — the lifecycle status of every technology your organization
-          tracks: <strong>Strategic</strong> (invest, default choice), <strong>Current</strong> (approved standard),
-          <strong>Contain</strong> (existing use only, not for new projects), <strong>Sunset</strong> (migrate away),
-          <strong>Retired</strong> (prohibited), and <strong>Emerging</strong> (trial/pilot, needs approval). On the
-          Review tab, any of these names or aliases mentioned in a submission are matched against this list and
-          reported with their status and recommended replacement. Only entries in this list are checked — a
-          technology that isn't matched here isn't thereby "approved," it just isn't tracked yet, so extend this list
-          to cover your organization's actual roadmap.
+          Every service has an independent status for each of two <strong>subscription types</strong> —
+          <strong>vNET / Private</strong> (intranet apps, connected to the corporate network) and
+          <strong>External / Public</strong> (internet-facing apps, no direct corporate network path). A status is
+          <strong>✓ Allowed</strong>, <strong>✕ Denied</strong>, or <strong>⏳ In evaluation</strong>; a Denied status
+          can additionally be <strong>⚠ Exception possible</strong> (approvable via a Deviation Request) or
+          <strong>⬢ Enterprise service available</strong> (a centrally managed alternative exists — see below). On the
+          Review tab, pick a subscription type and any service name/alias mentioned in the submission is checked
+          against its status for that type, plus whether any region mentioned is pre-approved for it. Only entries
+          here are checked — a service that isn't matched isn't thereby "approved," it just isn't tracked yet.
         </p>
         <div id="csr-list"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Enterprise service alternatives</h2>
+          <button id="btn-add-enterprise-service" class="btn-ghost" type="button">Add enterprise service</button>
+        </div>
+        <p class="panel-desc">
+          Centrally managed platforms teams should consume instead of standing up their own instance of a denied
+          service (e.g. use the Enterprise AI Foundry Service instead of deploying your own Azure OpenAI resource).
+          Referenced from the "Enterprise service alternative" field on a Cloud Service Roadmap entry above.
+        </p>
+        <div id="enterprise-services-list"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Region availability</h2>
+          <button id="btn-add-region" class="btn-ghost" type="button">Add region</button>
+        </div>
+        <p class="panel-desc">
+          Which Azure regions are enabled for each subscription type. A Cloud Service Roadmap entry's own
+          "allowed regions" (per subscription type) should be a subset of what's actually enabled here.
+        </p>
+        <div id="regions-list"></div>
       </div>
     </section>
 

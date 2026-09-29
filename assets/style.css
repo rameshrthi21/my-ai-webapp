@@ -17,6 +17,10 @@
   --pass-bg: #e9f7ee;
   --sunset: #b25b00;
   --sunset-bg: #fdf0e2;
+  --enterprise: #14418f;
+  --enterprise-bg: #e8f0fc;
+  --evaluation: #444e57;
+  --evaluation-bg: #eef1f3;
   --radius: 10px;
   --shadow: 0 1px 2px rgba(20, 24, 33, 0.06), 0 4px 16px rgba(20, 24, 33, 0.05);
 }
@@ -41,6 +45,10 @@
     --pass-bg: #163326;
     --sunset: #ffab5c;
     --sunset-bg: #3a2712;
+    --enterprise: #8db4f0;
+    --enterprise-bg: #1c2a3f;
+    --evaluation: #b7bfc7;
+    --evaluation-bg: #2a2d31;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 20px rgba(0, 0, 0, 0.35);
   }
 }
@@ -270,6 +278,8 @@ button {
 .finding-card.gap { border-left-color: var(--gap); }
 .finding-card.pass { border-left-color: var(--pass); }
 .finding-card.sunset { border-left-color: var(--sunset); }
+.finding-card.enterprise { border-left-color: var(--enterprise); }
+.finding-card.evaluation { border-left-color: var(--evaluation); }
 .finding-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
 .finding-head .rule-id { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; color: var(--text-muted); }
 .finding-head strong { font-size: 13.5px; }
@@ -292,6 +302,8 @@ button {
 .pill.gap, .severity-pill.gap { background: var(--gap-bg); color: var(--gap); }
 .pill.pass, .severity-pill.pass { background: var(--pass-bg); color: var(--pass); }
 .pill.sunset, .severity-pill.sunset { background: var(--sunset-bg); color: var(--sunset); }
+.pill.enterprise, .severity-pill.enterprise { background: var(--enterprise-bg); color: var(--enterprise); }
+.pill.evaluation, .severity-pill.evaluation { background: var(--evaluation-bg); color: var(--evaluation); }
 .pill.pillar-pill { background: var(--surface-alt); color: var(--text-muted); }
 
 /* rule library */
