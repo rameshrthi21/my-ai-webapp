@@ -1,0 +1,68 @@
+{
+  "version": "1.0.0",
+  "name": "Default Enterprise Cloud Service Roadmap (CSR)",
+  "statuses": [
+    { "id": "strategic", "name": "Strategic", "description": "Default choice for new work — actively invested in and encouraged." },
+    { "id": "current", "name": "Current", "description": "Approved standard. Fine to use for new work." },
+    { "id": "contain", "name": "Contain", "description": "Allowed for existing use only — do not start new use without an exception." },
+    { "id": "sunset", "name": "Sunset", "description": "Being retired. Do not start new use; migrate existing use to the listed replacement by the target date." },
+    { "id": "retired", "name": "Retired", "description": "Prohibited. No longer allowed anywhere, including existing use." },
+    { "id": "emerging", "name": "Emerging", "description": "Trial/pilot only. Requires architecture review approval before use beyond a sanctioned pilot." }
+  ],
+  "entries": [
+    { "id": "CSR-001", "name": "Azure App Service", "category": "Compute", "status": "strategic", "aliases": [], "replacement": null, "migrateBy": null, "notes": "Default PaaS compute for web/API workloads." },
+    { "id": "CSR-002", "name": "Azure Kubernetes Service", "category": "Compute", "status": "strategic", "aliases": ["aks"], "replacement": null, "migrateBy": null, "notes": "Default platform for containerized microservices at scale." },
+    { "id": "CSR-003", "name": "Azure Container Apps", "category": "Compute", "status": "emerging", "aliases": [], "replacement": null, "migrateBy": null, "notes": "Approved for pilot use on new event-driven/microservice workloads; not yet the default over AKS for production-critical services." },
+    { "id": "CSR-004", "name": "Azure Functions", "category": "Compute", "status": "current", "aliases": [], "replacement": null, "migrateBy": null, "notes": "Approved for event-driven and lightweight serverless workloads." },
+    { "id": "CSR-005", "name": "Azure Virtual Machines", "category": "Compute", "status": "contain", "aliases": ["azure vm", "azure vms"], "replacement": "Azure App Service or AKS", "migrateBy": null, "notes": "Allowed only for lift-and-shift of existing workloads with a documented PaaS migration plan; not for new greenfield builds." },
+    { "id": "CSR-006", "name": "Azure Service Fabric", "category": "Compute", "status": "sunset", "aliases": [], "replacement": "Azure Kubernetes Service", "migrateBy": "Q4 2026", "notes": "Superseded by AKS as the standard container orchestration platform." },
+    { "id": "CSR-007", "name": "On-premises VMware", "category": "Compute", "status": "retired", "aliases": ["vmware on-prem", "on-prem vmware"], "replacement": "Azure Virtual Machines (contained) or Azure App Service", "migrateBy": null, "notes": "Data center exit complete; no new on-prem VM workloads permitted." },
+
+    { "id": "CSR-008", "name": "Azure SQL Database", "category": "Relational Database", "status": "strategic", "aliases": ["azure sql"], "replacement": null, "migrateBy": null, "notes": "Default relational database for new OLTP workloads." },
+    { "id": "CSR-009", "name": "Azure Database for PostgreSQL", "category": "Relational Database", "status": "current", "aliases": ["azure postgresql", "azure postgres"], "replacement": null, "migrateBy": null, "notes": "Approved for workloads requiring native PostgreSQL compatibility." },
+    { "id": "CSR-010", "name": "SQL Server on a VM", "category": "Relational Database", "status": "sunset", "aliases": ["self-managed sql server", "sql server on a virtual machine"], "replacement": "Azure SQL Database", "migrateBy": "Q2 2027", "notes": "Migrate to managed Azure SQL to shed patching/backup overhead and licensing cost." },
+    { "id": "CSR-011", "name": "Oracle Database", "category": "Relational Database", "status": "contain", "aliases": ["oracle db"], "replacement": "Azure Database for PostgreSQL", "migrateBy": null, "notes": "Existing licensed workloads only; new projects require an exception given licensing cost." },
+    { "id": "CSR-012", "name": "MongoDB Atlas", "category": "NoSQL Database", "status": "retired", "aliases": [], "replacement": "Azure Cosmos DB (API for MongoDB)", "migrateBy": null, "notes": "Not on the approved catalog — data residency and billing must stay within the Azure tenant." },
+    { "id": "CSR-013", "name": "IBM DB2", "category": "Relational Database", "status": "retired", "aliases": ["db2"], "replacement": "Azure SQL Database", "migrateBy": null, "notes": "Mainframe database platform being decommissioned org-wide." },
+
+    { "id": "CSR-014", "name": "Azure Cosmos DB", "category": "NoSQL Database", "status": "strategic", "aliases": ["cosmos db", "cosmosdb"], "replacement": null, "migrateBy": null, "notes": "Default globally-distributed NoSQL/document database." },
+    { "id": "CSR-015", "name": "Self-hosted MongoDB", "category": "NoSQL Database", "status": "retired", "aliases": ["self-managed mongodb"], "replacement": "Azure Cosmos DB (API for MongoDB)", "migrateBy": null, "notes": "Operational and patching burden not accepted for a database tier we already have a managed equivalent for." },
+
+    { "id": "CSR-016", "name": "Azure Blob Storage", "category": "Object Storage", "status": "strategic", "aliases": ["blob storage"], "replacement": null, "migrateBy": null, "notes": "Default object storage." },
+    { "id": "CSR-017", "name": "Azure Data Lake Storage", "category": "Object Storage", "status": "current", "aliases": ["adls", "data lake storage gen2"], "replacement": null, "migrateBy": null, "notes": "Approved for analytics/data-lake workloads requiring hierarchical namespace." },
+    { "id": "CSR-018", "name": "Amazon S3", "category": "Object Storage", "status": "retired", "aliases": ["aws s3"], "replacement": "Azure Blob Storage", "migrateBy": null, "notes": "Single-cloud (Azure) policy for object storage; no new S3 usage." },
+    { "id": "CSR-019", "name": "On-premises file share", "category": "Object Storage", "status": "sunset", "aliases": ["on-prem nas", "on-prem san", "network file share"], "replacement": "Azure Blob Storage or Azure Files", "migrateBy": "Q3 2026", "notes": "On-prem storage being decommissioned as part of data center exit." },
+
+    { "id": "CSR-020", "name": "Azure Service Bus", "category": "Messaging & Eventing", "status": "strategic", "aliases": ["service bus"], "replacement": null, "migrateBy": null, "notes": "Default for enterprise messaging (queues/topics)." },
+    { "id": "CSR-021", "name": "Azure Event Hubs", "category": "Messaging & Eventing", "status": "current", "aliases": ["event hubs"], "replacement": null, "migrateBy": null, "notes": "Approved for high-throughput event streaming." },
+    { "id": "CSR-022", "name": "Azure Event Grid", "category": "Messaging & Eventing", "status": "current", "aliases": ["event grid"], "replacement": null, "migrateBy": null, "notes": "Approved for event routing/pub-sub between services." },
+    { "id": "CSR-023", "name": "Self-managed Apache Kafka", "category": "Messaging & Eventing", "status": "contain", "aliases": ["self-hosted kafka", "self-managed kafka"], "replacement": "Azure Event Hubs", "migrateBy": null, "notes": "Existing clusters only; new projects should use Event Hubs' Kafka-compatible endpoint instead of operating Kafka." },
+    { "id": "CSR-024", "name": "IBM MQ", "category": "Messaging & Eventing", "status": "sunset", "aliases": [], "replacement": "Azure Service Bus", "migrateBy": "Q1 2027", "notes": "Legacy enterprise messaging platform being retired." },
+    { "id": "CSR-025", "name": "Self-hosted RabbitMQ", "category": "Messaging & Eventing", "status": "retired", "aliases": ["self-managed rabbitmq"], "replacement": "Azure Service Bus", "migrateBy": null, "notes": "Operational burden of self-managed brokers not accepted where a managed equivalent exists." },
+
+    { "id": "CSR-026", "name": "Microsoft Entra ID", "category": "Identity", "status": "strategic", "aliases": ["entra id", "azure ad"], "replacement": null, "migrateBy": null, "notes": "Enterprise identity provider of record." },
+    { "id": "CSR-027", "name": "Azure AD B2C", "category": "Identity", "status": "current", "aliases": ["ad b2c"], "replacement": null, "migrateBy": null, "notes": "Approved for customer-facing identity (CIAM)." },
+    { "id": "CSR-028", "name": "Okta", "category": "Identity", "status": "retired", "aliases": [], "replacement": "Microsoft Entra ID", "migrateBy": null, "notes": "Superseded by Entra ID as the single enterprise identity provider." },
+    { "id": "CSR-029", "name": "Auth0", "category": "Identity", "status": "retired", "aliases": [], "replacement": "Azure AD B2C", "migrateBy": null, "notes": "Not approved for new customer-identity workloads." },
+
+    { "id": "CSR-030", "name": "Azure Key Vault", "category": "Secrets Management", "status": "strategic", "aliases": ["key vault"], "replacement": null, "migrateBy": null, "notes": "Mandatory for all secrets, keys, and certificates." },
+    { "id": "CSR-031", "name": "Self-hosted HashiCorp Vault", "category": "Secrets Management", "status": "contain", "aliases": ["self-managed vault"], "replacement": "Azure Key Vault", "migrateBy": null, "notes": "Existing integrations only; new projects must use Key Vault." },
+
+    { "id": "CSR-032", "name": "GitHub Actions", "category": "CI/CD", "status": "strategic", "aliases": [], "replacement": null, "migrateBy": null, "notes": "Default CI/CD platform." },
+    { "id": "CSR-033", "name": "Azure DevOps Pipelines", "category": "CI/CD", "status": "current", "aliases": ["azure devops"], "replacement": null, "migrateBy": null, "notes": "Approved alternative CI/CD platform, primarily for teams already standardized on Azure Boards." },
+    { "id": "CSR-034", "name": "Self-hosted Jenkins", "category": "CI/CD", "status": "sunset", "aliases": [], "replacement": "GitHub Actions", "migrateBy": "Q2 2026", "notes": "Being retired in favor of managed CI/CD; stop onboarding new pipelines to Jenkins." },
+    { "id": "CSR-035", "name": "CircleCI", "category": "CI/CD", "status": "retired", "aliases": [], "replacement": "GitHub Actions", "migrateBy": null, "notes": "Not on the approved CI/CD catalog." },
+
+    { "id": "CSR-036", "name": "Azure Monitor", "category": "Monitoring & Observability", "status": "strategic", "aliases": ["application insights"], "replacement": null, "migrateBy": null, "notes": "Default observability platform (metrics, logs, alerting, tracing)." },
+    { "id": "CSR-037", "name": "Datadog", "category": "Monitoring & Observability", "status": "contain", "aliases": [], "replacement": "Azure Monitor / Application Insights", "migrateBy": null, "notes": "Existing contracted usage only; new workloads should standardize on Azure Monitor." },
+    { "id": "CSR-038", "name": "Splunk", "category": "Monitoring & Observability", "status": "sunset", "aliases": [], "replacement": "Azure Monitor", "migrateBy": "Q4 2026", "notes": "On-prem Splunk deployment being retired as part of observability consolidation." },
+
+    { "id": "CSR-039", "name": "Azure Front Door", "category": "CDN & Edge", "status": "strategic", "aliases": [], "replacement": null, "migrateBy": null, "notes": "Default global entry point (CDN + WAF + load balancing)." },
+    { "id": "CSR-040", "name": "Azure API Management", "category": "API Management", "status": "current", "aliases": ["apim"], "replacement": null, "migrateBy": null, "notes": "Approved API gateway platform." },
+    { "id": "CSR-041", "name": "Cloudflare", "category": "CDN & Edge", "status": "retired", "aliases": [], "replacement": "Azure Front Door", "migrateBy": null, "notes": "Not approved for production edge/CDN traffic." },
+
+    { "id": "CSR-042", "name": "Azure OpenAI Service", "category": "Analytics & AI/ML", "status": "emerging", "aliases": [], "replacement": null, "migrateBy": null, "notes": "Approved for sanctioned pilots only; broader production use requires architecture review sign-off on data handling and cost controls." },
+    { "id": "CSR-043", "name": "Azure Databricks", "category": "Analytics & AI/ML", "status": "current", "aliases": [], "replacement": null, "migrateBy": null, "notes": "Approved for large-scale data engineering and ML workloads." },
+    { "id": "CSR-044", "name": "Azure Synapse Analytics", "category": "Analytics & AI/ML", "status": "current", "aliases": ["synapse"], "replacement": null, "migrateBy": null, "notes": "Approved for enterprise data warehousing." }
+  ]
+}

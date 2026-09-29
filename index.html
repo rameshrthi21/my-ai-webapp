@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Architecture Validation &amp; Design Review</title>
-<meta name="description" content="AI-assisted architecture validation: submit a design, get it checked against your enterprise patterns and Well-Architected pillars, with violations, exceptions, and gaps cited to the actual rule." />
+<meta name="description" content="AI-assisted architecture validation: submit a design or technology choice, get it checked against your enterprise Cloud Service Roadmap, patterns, and Well-Architected pillars, with every finding cited to the actual rule or roadmap entry." />
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>" />
 <link rel="stylesheet" href="assets/style.css" />
 </head>
@@ -16,14 +16,18 @@
       <span class="brand-mark" aria-hidden="true">🏛️</span>
       <div>
         <h1>Architecture Validation &amp; Design Review</h1>
-        <p class="tagline">Submit a design. Get it checked against your enterprise patterns and the Well-Architected pillars — automatically, with every finding cited to the rule that raised it.</p>
+        <p class="tagline">Submit a design or a technology choice. Get it checked against your enterprise Cloud Service Roadmap, your patterns, and the Well-Architected pillars — automatically, with every finding cited to the rule or roadmap entry that raised it.</p>
       </div>
+    </div>
+    <div class="topbar-actions">
+      <button id="btn-download-standalone-top" class="btn-ghost" type="button">⬇ Download standalone copy</button>
     </div>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button class="tab active" data-tab="review" role="tab" aria-selected="true">Review</button>
     <button class="tab" data-tab="rules" role="tab" aria-selected="false">Rule Library</button>
+    <button class="tab" data-tab="csr" role="tab" aria-selected="false">Cloud Roadmap</button>
     <button class="tab" data-tab="history" role="tab" aria-selected="false">History</button>
     <button class="tab" data-tab="settings" role="tab" aria-selected="false">Settings</button>
   </nav>
@@ -103,6 +107,33 @@
       </div>
     </section>
 
+    <!-- CLOUD SERVICE ROADMAP (CSR) TAB -->
+    <section id="tab-csr" class="tab-panel" role="tabpanel">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Cloud Service Roadmap</h2>
+          <div class="btn-row">
+            <button id="btn-add-csr" class="btn-primary" type="button">Add technology</button>
+            <button id="btn-import-csr" class="btn-ghost" type="button">Import JSON</button>
+            <button id="btn-export-csr" class="btn-ghost" type="button">Export JSON</button>
+            <button id="btn-reset-csr" class="btn-danger-ghost" type="button">Reset to defaults</button>
+            <input type="file" id="file-import-csr" accept="application/json" hidden />
+          </div>
+        </div>
+        <p class="panel-desc">
+          This is your master Cloud Service Roadmap (CSR) — the lifecycle status of every technology your organization
+          tracks: <strong>Strategic</strong> (invest, default choice), <strong>Current</strong> (approved standard),
+          <strong>Contain</strong> (existing use only, not for new projects), <strong>Sunset</strong> (migrate away),
+          <strong>Retired</strong> (prohibited), and <strong>Emerging</strong> (trial/pilot, needs approval). On the
+          Review tab, any of these names or aliases mentioned in a submission are matched against this list and
+          reported with their status and recommended replacement. Only entries in this list are checked — a
+          technology that isn't matched here isn't thereby "approved," it just isn't tracked yet, so extend this list
+          to cover your organization's actual roadmap.
+        </p>
+        <div id="csr-list"></div>
+      </div>
+    </section>
+
     <!-- HISTORY TAB -->
     <section id="tab-history" class="tab-panel" role="tabpanel">
       <div class="panel">
@@ -142,6 +173,21 @@
       </div>
 
       <div class="panel">
+        <h2>Download a standalone copy</h2>
+        <p class="panel-desc">
+          Bundles this page — your current Rule Library and Cloud Service Roadmap included — into a single
+          self-contained <code>.html</code> file. Anyone can open it directly in a browser with no server, no
+          internet connection, and no install; double-clicking it is enough. Your review history is
+          <strong>not</strong> included. Edits made in the downloaded copy stay local to whoever has it — they
+          don't sync back here, and edits made here after downloading aren't reflected in a copy already shared.
+        </p>
+        <div class="actions-row">
+          <button id="btn-download-standalone" class="btn-primary" type="button">⬇ Download standalone copy (.html)</button>
+          <span id="standalone-status" class="status-text" aria-live="polite"></span>
+        </div>
+      </div>
+
+      <div class="panel">
         <h2>About this tool</h2>
         <p class="panel-desc">
           This is the automated extension of a manual architecture review board: instead of a human checking a proposed
@@ -173,6 +219,20 @@
     </header>
     <h3 class="rule-title"></h3>
     <p class="rule-requirement"></p>
+  </article>
+</template>
+
+<template id="csr-item-template">
+  <article class="rule-item">
+    <header class="rule-item-head">
+      <span class="rule-id"></span>
+      <span class="pill status-pill"></span>
+      <span class="pill pillar-pill category-pill"></span>
+      <button class="btn-icon csr-edit" type="button" title="Edit">✏️</button>
+      <button class="btn-icon csr-delete" type="button" title="Delete">🗑️</button>
+    </header>
+    <h3 class="rule-title csr-title"></h3>
+    <p class="rule-requirement csr-notes"></p>
   </article>
 </template>
 

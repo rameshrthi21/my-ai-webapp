@@ -55,11 +55,30 @@ automatically on every push.)
   `.ppt`/`.vsd` and raster images/screenshots of diagrams aren't. The file
   never leaves your browser — it's parsed client-side with the native ZIP/XML
   handling in `assets/diagram-import.js`, no upload, no library, no CDN.
+- The **Cloud Roadmap** tab holds `assets/csr.default.json` — your master
+  **Cloud Service Roadmap (CSR)**: every technology your org tracks, each
+  with a lifecycle status (**Strategic**, **Current**, **Contain**,
+  **Sunset**, **Retired**, or **Emerging**), a category, aliases, and a
+  recommended replacement. Every "Run review" also matches the submission
+  text against this list and reports each recognized technology's status —
+  a Retired/Sunset match is a flag to act on, an Emerging match needs
+  governance sign-off, Contain/Current/Strategic are informational. Like the
+  Rule Library, it's editable/exportable/importable and meant to be replaced
+  with your org's actual roadmap.
 - The **Settings** tab has an optional, off-by-default AI narrative layer:
   bring your own Anthropic API key (stored only in your browser's
   `localStorage`, sent directly from your browser to Anthropic's API) and
   each review gets a short plain-language synthesis on top of the
   deterministic findings. The core tool works fully offline without this.
+- **Download standalone copy** (Settings tab, or the header button) bundles
+  the page — your current Rule Library and CSR included — into one
+  self-contained `.html` file with the CSS and JS inlined and the data
+  embedded as `window.__EMBEDDED_RULES__` / `window.__EMBEDDED_CSR__`. Anyone
+  can open that file directly in a browser (`file://`, no server, no
+  internet) and it works exactly like the hosted site. Review history is
+  deliberately **not** included in the download, since that could contain
+  whatever architecture text you'd previously reviewed. The downloaded copy
+  is a snapshot: edits made in it don't sync back here, and vice versa.
 
 Everything runs client-side. No backend, no database, no data leaves your
 browser unless you explicitly turn on the AI narrative feature.
@@ -100,12 +119,14 @@ new default for everyone.
 
 1. Open the **Rule Library** tab and edit/add/remove rules to match your
    actual enterprise patterns, approved service catalog, data residency
-   policy, tagging standard, etc.
-2. Use **Export JSON** to save your customized pack, and **Import JSON** to
-   load it back in (or to share it with teammates / commit it to the repo
-   as a new default).
+   policy, tagging standard, etc. Open the **Cloud Roadmap** tab and do the
+   same for your organization's real technology lifecycle statuses.
+2. Use **Export JSON** to save your customized rule pack / CSR, and
+   **Import JSON** to load either back in (or to share it with teammates /
+   commit it to the repo as a new default).
 3. To ship a customized pack as the new default for everyone, replace
-   `assets/rules.default.json` with your exported file and push.
+   `assets/rules.default.json` and/or `assets/csr.default.json` with your
+   exported file(s) and push.
 
 ## Local development
 
